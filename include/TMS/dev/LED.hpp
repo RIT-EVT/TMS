@@ -46,6 +46,6 @@ private:
     ActiveState activeState;
 };
 
-}  //namespace BOARD_NAME::DEV
+}  //namespace TMS::DEV
 
 #endif
