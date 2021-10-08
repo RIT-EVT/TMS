@@ -8,7 +8,7 @@
  */
 #include <EVT/io/GPIO.hpp>
 #include <EVT/io/manager.hpp>
-#include <BOARD_NAME/dev/LED.hpp>
+#include <TMS/dev/LED.hpp>
 #include <EVT/io/pin.hpp>
 #include <EVT/utils/time.hpp>
 

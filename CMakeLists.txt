@@ -12,7 +12,7 @@ include(${EVT_CORE_DIR}/cmake/evt-core_install.cmake)
 ###############################################################################
 # Project Setup
 ###############################################################################
-set(BOARD_LIB_NAME  TMS)
+set(BOARD_LIB_NAME   TMS)
 if("${BOARD_LIB_NAME}" STREQUAL CHANGE_ME)
     message(FATAL_ERROR
             "You must set the template project name in CmakeLists.txt")
@@ -25,7 +25,7 @@ project(${BOARD_LIB_NAME}
         LANGUAGES CXX C
         )
 
-add_library(${PROJECT_NAME} STATIC)
+add_library(${PROJECT_NAME} STATIC include/TMS/dev/PUMP_ACCESS.hpp)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
