@@ -8,8 +8,8 @@
  */
 #include <EVT/io/GPIO.hpp>
 #include <EVT/io/manager.hpp>
-#include <TMS/dev/LED.hpp>
 #include <EVT/utils/time.hpp>
+#include <TMS/dev/LED.hpp>
 
 namespace IO = EVT::core::IO;
 namespace DEV = BOARD_NAME::DEV;
