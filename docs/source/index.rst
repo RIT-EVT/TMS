@@ -12,12 +12,21 @@ Welcome to TMS' documentation!
 
    api/index.rst
 
+Requirements
+====
+
+- Sending and receiving CANopen messages
+- Sending necessary messages during auxiliary mode
+- Interfacing with the pump and fans
+- Checking thermistor temperatures
+- Running temperature values through the control loop functions
+- Applying results from the control loop to the pump and fans
+- Powering down without errors
+
 Docs
 ====
 
 To see documentation for EVT-core please see `EVT-core <https://evt-core.readthedocs.io/en/latest/>`_
-
-<Include Documentation for board here>
 
 Indices and tables
 ==================
