@@ -32,7 +32,7 @@ add_library(${PROJECT_NAME} STATIC)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
-        src/TMS/dev/LED.cpp
+        src/TMS/dev/HeatPump.cpp
         )
 
 ###############################################################################
