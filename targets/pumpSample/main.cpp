@@ -1,3 +1,6 @@
+/**
+ * Tests the HeatPump class by allowing the user to input values via UART to set the pump speed.
+ */
 #include <EVT/io/GPIO.hpp>
 #include <EVT/io/PWM.hpp>
 #include <EVT/io/manager.hpp>

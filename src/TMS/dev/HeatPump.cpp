@@ -3,13 +3,14 @@
 namespace TMS {
 
 HeatPump::HeatPump(IO::PWM& pwm, uint8_t initSpeed) : pwm(pwm) {
-    // Must be >= 7 to ensure acceptable frequency
+    // Ensures initSpeed falls in the required range
     if (initSpeed < MIN_INIT_SPEED) {
-        initSpeed = MIN_INIT_SPEED;
+        this->initSpeed = MIN_INIT_SPEED;
     } else if (initSpeed > MAX_SPEED) {
-        initSpeed = MAX_SPEED;
+        this->initSpeed = MAX_SPEED;
+    } else {
+        this->initSpeed = initSpeed;
     }
-    this->initSpeed = initSpeed;
 }
 
 void HeatPump::init() {
@@ -19,6 +20,7 @@ void HeatPump::init() {
 }
 
 void HeatPump::setSpeed(uint8_t speed) {
+    // Ensures speed falls in the required range
     if (speed > MAX_SPEED) {
         speed = MAX_SPEED;
     }
