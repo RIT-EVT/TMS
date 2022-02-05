@@ -21,7 +21,6 @@ int main() {
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
     TMS::HeatPump pump = TMS::HeatPump(pwm);
 
-
     while (1) {
         uart.printf("Enter Speed (0-100): ");
         uart.gets(buf, 100);
