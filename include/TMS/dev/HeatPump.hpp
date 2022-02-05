@@ -3,10 +3,12 @@
 
 #include <EVT/io/PWM.hpp>
 
-// To wake the pump correctly, the initial duty cycle and frequency must have the PWM line held high
-// for at least 3 ms, so this is set to 3.5 ms to ensure it doesn't fail
-#define MIN_INIT_TIME .0035
-#define MIN_INIT_SPEED 7
+// Maximum period is .02, so this value is set as close to the max as can be safe, which allows the
+// minimum of the init speed to be as low as possible
+#define PERIOD .0195
+// Value decided by the duty cycle and period to ensure the pump awakens with the appropriate high
+// signal of >= 3 ms
+#define MIN_INIT_SPEED 7 // d = t / P = .0035 / .0195 = .179; s = (d - .13) / .0072 = 6.87 ~ 7
 #define MAX_SPEED 100
 #define SPEED_TO_DUTY_CYCLE(speed) (speed * .0072 + .13)
 
@@ -21,18 +23,11 @@ namespace TMS {
 class HeatPump {
 public:
     /**
-     * Constructor for pump to operate with the given pwm and initial speed
+     * Constructor for pump to operate with the given pwm
      *
      * @param pwm PWM to be used to control the heat pump
-     * @param initSpeed Initial speed (7-100) to start the heat pump at; must be at least 7
-     * initially to ensure the init() method calculates an acceptable frequency (50-1000 Hz)
      */
-    HeatPump(IO::PWM& pwm, uint8_t initSpeed);
-
-    /**
-     * Initialize the pump
-     */
-    void init();
+    HeatPump(IO::PWM& pwm);
 
     /**
      * Set the speed of the pump
@@ -49,8 +44,13 @@ public:
 private:
     /** PWM instance to control the pump */
     IO::PWM& pwm;
-    /** Speed to initialize the pump to */
-    uint8_t initSpeed;
+    /**
+     * Whether or not the pump is initialized
+     *
+     * Necessary because the speed of the pump needs to be set differently depending on whether it
+     * has been initialized
+     */
+    bool isInitialized;
 };
 
 }// namespace TMS
