@@ -2,25 +2,33 @@
 
 namespace TMS {
 
-HeatPump::HeatPump(IO::PWM& Pwm, float initSpeed) : pwm(Pwm) {
-    // Must be > .027778
+HeatPump::HeatPump(IO::PWM& pwm, uint8_t initSpeed) : pwm(pwm) {
+    // Must be >= 7 to ensure acceptable frequency
+    if (initSpeed < MIN_INIT_SPEED) {
+        initSpeed = MIN_INIT_SPEED;
+    } else if (initSpeed > MAX_SPEED) {
+        initSpeed = MAX_SPEED;
+    }
     this->initSpeed = initSpeed;
 }
 
 void HeatPump::init() {
-    float initDutyCycle = initSpeed * .72 + .13;
-    pwm.setPeriod(.003 / initDutyCycle);
+    float initDutyCycle = SPEED_TO_DUTY_CYCLE(initSpeed);
+    pwm.setPeriod(MIN_INIT_TIME / initDutyCycle);
     pwm.setDutyCycle(initDutyCycle);
 }
 
-void HeatPump::setSpeed(float speed) {
-    if (speed < 0) {
-        speed = 0;
-    } else if (speed > 1) {
-        speed = 1;
+void HeatPump::setSpeed(uint8_t speed) {
+    if (speed > MAX_SPEED) {
+        speed = MAX_SPEED;
     }
 
-    float dutyCycle = speed * .72 + .13;
+    float dutyCycle = SPEED_TO_DUTY_CYCLE(speed);
     pwm.setDutyCycle(dutyCycle);
 }
+
+void HeatPump::stop() {
+    pwm.setDutyCycle(0);
 }
+
+}// namespace TMS
