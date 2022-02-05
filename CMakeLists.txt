@@ -1,5 +1,5 @@
 ###############################################################################
-# Top level CMakeList for building the EVT APM source code
+# Top level CMakeList for building the TMS source code
 ###############################################################################
 cmake_minimum_required(VERSION 3.15)
 
@@ -15,7 +15,7 @@ include(${EVT_CORE_DIR}/cmake/evt-core_install.cmake)
 ###############################################################################
 # Project Setup
 ###############################################################################
-set(BOARD_LIB_NAME  TMS)
+set(BOARD_LIB_NAME   TMS)
 if("${BOARD_LIB_NAME}" STREQUAL CHANGE_ME)
     message(FATAL_ERROR
             "You must set the template project name in CmakeLists.txt")
@@ -32,7 +32,7 @@ add_library(${PROJECT_NAME} STATIC)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
-        src/TMS/dev/LED.cpp
+        src/TMS/dev/HeatPump.cpp
         )
 
 ###############################################################################

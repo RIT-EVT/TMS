@@ -2,6 +2,7 @@
 build/
 html/
 latex/
+cmake-build-debug/
 compile_commands.json
 
 # Virtual environments
