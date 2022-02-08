@@ -8,10 +8,24 @@ namespace IO = EVT::core::IO;
 
 namespace TMS {
 
+/**
+ * Represents a radiator fan used for DEV1
+ */
 class RadiatorFan {
 public:
+    /**
+     * Constructor for the radiator fan to operate with the given GPIO
+     *
+     * @param gpio GPIO to be used to control the fan
+     * @pre gpio's direction is set to OUTPUT
+     */
     RadiatorFan(IO::GPIO& gpio);
 
+    /**
+     * Turns the fan on or off
+     *
+     * @param on Whether the fan should be turned on or off
+     */
     void powerOn(bool on);
 
 private:

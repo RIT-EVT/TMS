@@ -1,6 +1,5 @@
 /**
- * Tests the RadiatorFan class by allowing the user to input values via UART to turn the fan on and
- * off.
+ * Tests the RadiatorFan class by allowing the user to turn the fan on and off using UART.
  */
 #include <EVT/io/GPIO.hpp>
 #include <EVT/io/PWM.hpp>
