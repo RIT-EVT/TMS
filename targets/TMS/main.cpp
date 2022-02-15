@@ -3,7 +3,6 @@
  * basic echo functionality where the uart will write back whatever the user
  * enters.
  */
-#include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
 #include <EVT/io/CANopen.hpp>
 #include <EVT/io/UART.hpp>
 #include <EVT/io/manager.hpp>
@@ -12,6 +11,7 @@
 #include <EVT/utils/log.hpp>
 #include <EVT/utils/types/FixedQueue.hpp>
 
+#include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
 #include <TMS/TMS.hpp>
 
 namespace IO = EVT::core::IO;
