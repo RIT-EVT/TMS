@@ -8,4 +8,4 @@ CO_OBJ_T* TMS::getObjectDictionary() {
 uint16_t TMS::getObjectDictionarySize() {
     return OBJECT_DICTIONARY_SIZE;
 }
-}
+}// namespace TMS

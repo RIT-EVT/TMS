@@ -3,6 +3,7 @@
  * basic echo functionality where the uart will write back whatever the user
  * enters.
  */
+#include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
 #include <EVT/io/CANopen.hpp>
 #include <EVT/io/UART.hpp>
 #include <EVT/io/manager.hpp>
@@ -10,7 +11,6 @@
 #include <EVT/io/types/CANMessage.hpp>
 #include <EVT/utils/log.hpp>
 #include <EVT/utils/types/FixedQueue.hpp>
-#include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
 
 #include <TMS/TMS.hpp>
 
@@ -19,10 +19,8 @@ namespace DEV = EVT::core::DEV;
 namespace time = EVT::core::time;
 namespace log = EVT::core::log;
 
-
 // Global CAN Node reference
 CO_NODE canNode;
-
 
 void handleNMT(IO::CANMessage& message) {
     uint8_t* payload = message.getPayload();
@@ -50,7 +48,7 @@ void handleNMT(IO::CANMessage& message) {
  */
 void canInterruptHandler(IO::CANMessage& message, void* priv) {
     // Handle NMT messages
-    if(message.getId() == 0) {
+    if (message.getId() == 0) {
         handleNMT(message);
         return;
     }
@@ -159,7 +157,7 @@ int main() {
         // Handle executing timer events that have elapsed
         COTmrProcess(&canNode.Tmr);
 
-        switch(CONmtGetMode(&canNode.Nmt)) {
+        switch (CONmtGetMode(&canNode.Nmt)) {
         // Auxiliary Mode
         case CO_PREOP:
             break;
