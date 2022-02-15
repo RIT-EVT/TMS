@@ -3,14 +3,14 @@
  * basic echo functionality where the uart will write back whatever the user
  * enters.
  */
+#include <EVT/io/CANopen.hpp>
+#include <EVT/io/UART.hpp>
 #include <EVT/io/manager.hpp>
 #include <EVT/io/pin.hpp>
-#include <EVT/io/UART.hpp>
 #include <EVT/io/types/CANMessage.hpp>
-#include <EVT/utils/types/FixedQueue.hpp>
-#include <EVT/io/CANopen.hpp>
-#include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
 #include <EVT/utils/log.hpp>
+#include <EVT/utils/types/FixedQueue.hpp>
+#include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
 
 #include <TMS/TMS.hpp>
 
@@ -19,14 +19,44 @@ namespace DEV = EVT::core::DEV;
 namespace time = EVT::core::time;
 namespace log = EVT::core::log;
 
+
+// Global CAN Node reference
+CO_NODE canNode;
+
+
+void handleNMT(IO::CANMessage& message) {
+    uint8_t* payload = message.getPayload();
+    uint8_t targetID = payload[1];
+    if (targetID == TMS::TMS::NODE_ID || targetID == 0x00) {
+        CO_MODE mode;
+        switch (payload[0]) {
+        case 0x01:
+            mode = CO_OPERATIONAL;
+            break;
+        case 0x80:
+            mode = CO_PREOP;
+            break;
+        default:
+            mode = CO_INVALID;
+        }
+        CONmtModeChange(&canNode.Nmt, mode);
+    }
+}
+
 /**
  * Interrupt handler for incoming CAN messages.
  *
  * @param priv[in] The private data (FixedQueue<CANOPEN_QUEUE_SIZE, CANMessage>)
  */
 void canInterruptHandler(IO::CANMessage& message, void* priv) {
+    // Handle NMT messages
+    if(message.getId() == 0) {
+        handleNMT(message);
+        return;
+    }
+
     EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>* queue =
-        (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*)priv;
+        (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
     if (queue == nullptr)
         return;
     if (!message.isCANExtended())
@@ -40,29 +70,29 @@ extern "C" void CONodeFatalError(void) {
     log::LOGGER.log(log::Logger::LogLevel::ERROR, "Fatal CANopen error");
 }
 
-extern "C" void COIfCanReceive(CO_IF_FRM *frm) { }
+extern "C" void COIfCanReceive(CO_IF_FRM* frm) {}
 
 extern "C" int16_t COLssStore(uint32_t baudrate, uint8_t nodeId) { return 0; }
 
-extern "C" int16_t COLssLoad(uint32_t *baudrate, uint8_t *nodeId) { return 0; }
+extern "C" int16_t COLssLoad(uint32_t* baudrate, uint8_t* nodeId) { return 0; }
 
-extern "C" void CONmtModeChange(CO_NMT *nmt, CO_MODE mode) { }
+extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {}
 
-extern "C" void CONmtHbConsEvent(CO_NMT *nmt, uint8_t nodeId) { }
+extern "C" void CONmtHbConsEvent(CO_NMT* nmt, uint8_t nodeId) {}
 
-extern "C" void CONmtHbConsChange(CO_NMT *nmt, uint8_t nodeId, CO_MODE mode) { }
+extern "C" void CONmtHbConsChange(CO_NMT* nmt, uint8_t nodeId, CO_MODE mode) {}
 
-extern "C" int16_t COParaDefault(CO_PARA *pg) { return 0; }
+extern "C" int16_t COParaDefault(CO_PARA* pg) { return 0; }
 
-extern "C" void COPdoTransmit(CO_IF_FRM *frm) { }
+extern "C" void COPdoTransmit(CO_IF_FRM* frm) {}
 
-extern "C" int16_t COPdoReceive(CO_IF_FRM *frm) { return 0; }
+extern "C" int16_t COPdoReceive(CO_IF_FRM* frm) { return 0; }
 
-extern "C" void COPdoSyncUpdate(CO_RPDO *pdo) { }
+extern "C" void COPdoSyncUpdate(CO_RPDO* pdo) {}
 
-extern "C" void COTmrLock(void) { }
+extern "C" void COTmrLock(void) {}
 
-extern "C" void COTmrUnlock(void) { }
+extern "C" void COTmrUnlock(void) {}
 
 int main() {
     // Initialize system
@@ -81,7 +111,7 @@ int main() {
     // Set up Logger
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
     log::LOGGER.setUART(&uart);
-    log::LOGGER.setLogLevel(log::Logger::LogLevel::INFO);
+    log::LOGGER.setLogLevel(log::Logger::LogLevel::DEBUG);
 
     TMS::TMS tms;
 
@@ -117,8 +147,6 @@ int main() {
         .SdoBuf = reinterpret_cast<uint8_t*>(&sdoBuffer[0]),
     };
 
-    CO_NODE canNode;
-
     CONodeInit(&canNode, &canSpec);
     CONodeStart(&canNode);
     //TODO: Set up network messaging
@@ -130,6 +158,18 @@ int main() {
         COTmrService(&canNode.Tmr);
         // Handle executing timer events that have elapsed
         COTmrProcess(&canNode.Tmr);
+
+        switch(CONmtGetMode(&canNode.Nmt)) {
+        // Auxiliary Mode
+        case CO_PREOP:
+            break;
+        // Operational Mode
+        case CO_OPERATIONAL:
+            break;
+        default:
+            log::LOGGER.log(log::Logger::LogLevel::WARNING, "Network Management state is not valid.");
+        }
+
         // Wait for new data to come in
         time::wait(10);
     }

@@ -1,4 +1,12 @@
 ###############################################################################
+# Convert CMake flags to compiler flags
+###############################################################################
+if(EVT_CORE_LOG_ENABLE)
+    message(please)
+    add_compile_definitions(EVT_CORE_LOG_ENABLE)
+endif()
+
+###############################################################################
 # Top level CMakeList for building the TMS source code
 ###############################################################################
 cmake_minimum_required(VERSION 3.15)
