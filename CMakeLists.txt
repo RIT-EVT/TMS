@@ -1,4 +1,11 @@
 ###############################################################################
+# Convert CMake flags to compiler flags
+###############################################################################
+if(EVT_CORE_LOG_ENABLE)
+    add_compile_definitions(EVT_CORE_LOG_ENABLE)
+endif()
+
+###############################################################################
 # Top level CMakeList for building the TMS source code
 ###############################################################################
 cmake_minimum_required(VERSION 3.15)
@@ -32,6 +39,7 @@ add_library(${PROJECT_NAME} STATIC)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
+        src/TMS/TMS.cpp
         src/TMS/dev/HeatPump.cpp
         src/TMS/dev/RadiatorFan.cpp
         )
