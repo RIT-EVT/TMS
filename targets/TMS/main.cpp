@@ -1,7 +1,5 @@
 /**
- * This is a basic sample of using the UART module. The program provides a
- * basic echo functionality where the uart will write back whatever the user
- * enters.
+ * This is the primary file for running the Thermal Management System.
  */
 #include <EVT/io/CANopen.hpp>
 #include <EVT/io/UART.hpp>
@@ -23,6 +21,7 @@ namespace log = EVT::core::log;
 CO_NODE canNode;
 
 void handleNMT(IO::CANMessage& message) {
+    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Network Management message recognized.");
     uint8_t* payload = message.getPayload();
     uint8_t targetID = payload[1];
     if (targetID == TMS::TMS::NODE_ID || targetID == 0x00) {
@@ -37,7 +36,8 @@ void handleNMT(IO::CANMessage& message) {
         default:
             mode = CO_INVALID;
         }
-        CONmtModeChange(&canNode.Nmt, mode);
+        if (canNode.Nmt.Mode != mode)
+            CONmtSetMode(&canNode.Nmt, mode);
     }
 }
 
@@ -47,6 +47,8 @@ void handleNMT(IO::CANMessage& message) {
  * @param priv[in] The private data (FixedQueue<CANOPEN_QUEUE_SIZE, CANMessage>)
  */
 void canInterruptHandler(IO::CANMessage& message, void* priv) {
+    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
+
     // Handle NMT messages
     if (message.getId() == 0) {
         handleNMT(message);
@@ -74,7 +76,9 @@ extern "C" int16_t COLssStore(uint32_t baudrate, uint8_t nodeId) { return 0; }
 
 extern "C" int16_t COLssLoad(uint32_t* baudrate, uint8_t* nodeId) { return 0; }
 
-extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {}
+extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {
+    log::LOGGER.log(log::Logger::LogLevel::INFO, "Network Management state changed.");
+}
 
 extern "C" void CONmtHbConsEvent(CO_NMT* nmt, uint8_t nodeId) {}
 
@@ -110,6 +114,8 @@ int main() {
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
     log::LOGGER.setUART(&uart);
     log::LOGGER.setLogLevel(log::Logger::LogLevel::DEBUG);
+    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Logger initialized.");
+    timer.stopTimer();
 
     TMS::TMS tms;
 
@@ -117,7 +123,15 @@ int main() {
     uint8_t sdoBuffer[1][CO_SDO_BUF_BYTE];
     CO_TMR_MEM appTmrMem[4];
 
-    // Initialize the CANopen drivers
+    // Attempt to join the CAN network
+    IO::CAN::CANStatus result = can.connect();
+
+    if (result != IO::CAN::CANStatus::OK) {
+        uart.printf("Failed to connect to CAN network\r\n");
+        return 1;
+    }
+
+    // Make drivers
     CO_IF_DRV canStackDriver;
 
     CO_IF_CAN_DRV canDriver;
@@ -147,15 +161,12 @@ int main() {
 
     CONodeInit(&canNode, &canSpec);
     CONodeStart(&canNode);
-    //TODO: Set up network messaging
+
+    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Entering loop");
 
     while (1) {
         // Process incoming CAN messages
         CONodeProcess(&canNode);
-        // Update the state of timer based events
-        COTmrService(&canNode.Tmr);
-        // Handle executing timer events that have elapsed
-        COTmrProcess(&canNode.Tmr);
 
         switch (CONmtGetMode(&canNode.Nmt)) {
         // Auxiliary Mode
@@ -163,12 +174,13 @@ int main() {
             break;
         // Operational Mode
         case CO_OPERATIONAL:
+            // Update the state of timer based events
+            COTmrService(&canNode.Tmr);
+            // Handle executing timer events that have elapsed
+            COTmrProcess(&canNode.Tmr);
             break;
         default:
-            log::LOGGER.log(log::Logger::LogLevel::WARNING, "Network Management state is not valid.");
+            log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
         }
-
-        // Wait for new data to come in
-        time::wait(10);
     }
 }
