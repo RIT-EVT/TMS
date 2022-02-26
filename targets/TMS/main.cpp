@@ -36,8 +36,7 @@ void handleNMT(IO::CANMessage& message) {
         default:
             mode = CO_INVALID;
         }
-        CONmtModeChange(&canNode.Nmt, mode);
-        log::LOGGER.log(log::Logger::LogLevel::INFO, "Network Management state changed.");
+        if (canNode.Nmt.Mode != mode) CONmtSetMode(&canNode.Nmt, mode);
     }
 }
 
@@ -76,7 +75,9 @@ extern "C" int16_t COLssStore(uint32_t baudrate, uint8_t nodeId) { return 0; }
 
 extern "C" int16_t COLssLoad(uint32_t* baudrate, uint8_t* nodeId) { return 0; }
 
-extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {}
+extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {
+    log::LOGGER.log(log::Logger::LogLevel::INFO, "Network Management state changed.");
+}
 
 extern "C" void CONmtHbConsEvent(CO_NMT* nmt, uint8_t nodeId) {}
 
@@ -163,26 +164,22 @@ int main() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Entering loop");
 
     while (1) {
-        //log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Loop running.");
         // Process incoming CAN messages
         CONodeProcess(&canNode);
 
-        //log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Loop running.");
         switch (CONmtGetMode(&canNode.Nmt)) {
         // Auxiliary Mode
         case CO_PREOP:
-            //log::LOGGER.log(log::Logger::LogLevel::INFO, "Network Management state is CO_PREOP.");
             break;
         // Operational Mode
         case CO_OPERATIONAL:
-            //log::LOGGER.log(log::Logger::LogLevel::INFO, "Network Management state is CO_OPERATIONAL.");
             // Update the state of timer based events
             COTmrService(&canNode.Tmr);
             // Handle executing timer events that have elapsed
             COTmrProcess(&canNode.Tmr);
             break;
         default:
-            log::LOGGER.log(log::Logger::LogLevel::WARNING, "Network Management state is not valid.");
+            log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
         }
     }
 }
