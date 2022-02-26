@@ -36,7 +36,8 @@ void handleNMT(IO::CANMessage& message) {
         default:
             mode = CO_INVALID;
         }
-        if (canNode.Nmt.Mode != mode) CONmtSetMode(&canNode.Nmt, mode);
+        if (canNode.Nmt.Mode != mode)
+            CONmtSetMode(&canNode.Nmt, mode);
     }
 }
 
