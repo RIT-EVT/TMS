@@ -125,8 +125,7 @@ int main() {
     TMS::HeatPump pump = TMS::HeatPump(pwm);
     TMS::RadiatorFan fans[] = {
         TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_1>()),
-        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PB_0>())
-    };
+        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PB_0>())};
 
     // Reserved memory for CANopen stack usage
     uint8_t sdoBuffer[1][CO_SDO_BUF_BYTE];
@@ -182,7 +181,7 @@ int main() {
         case CO_PREOP:
             // Turn the pump and fans off
             pump.stop();
-            for(TMS::RadiatorFan fan : fans) {
+            for (TMS::RadiatorFan fan : fans) {
                 fan.powerOn(0);
             }
             break;
@@ -195,7 +194,7 @@ int main() {
 
             // Activate the pump and fans -- will be replaced with more advanced cooling logic later
             pump.setSpeed(60);
-            for(TMS::RadiatorFan fan : fans) {
+            for (TMS::RadiatorFan fan : fans) {
                 fan.powerOn(1);
             }
             break;
