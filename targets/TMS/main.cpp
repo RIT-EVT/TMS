@@ -11,6 +11,8 @@
 
 #include <EVT/dev/platform/f3xx/f302x8/Timerf302x8.hpp>
 #include <TMS/TMS.hpp>
+#include <TMS/dev/HeatPump.hpp>
+#include <TMS/dev/RadiatorFan.hpp>
 
 namespace IO = EVT::core::IO;
 namespace DEV = EVT::core::DEV;
@@ -117,7 +119,13 @@ int main() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Logger initialized.");
     timer.stopTimer();
 
+    // Set up TMS and necessary device drivers
     TMS::TMS tms;
+    IO::PWM& pwm = IO::getPWM<IO::Pin::PC_0>();
+    TMS::HeatPump pump = TMS::HeatPump(pwm);
+    TMS::RadiatorFan fans[] = {
+        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_1>()),
+        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PB_0>())};
 
     // Reserved memory for CANopen stack usage
     uint8_t sdoBuffer[1][CO_SDO_BUF_BYTE];
@@ -171,6 +179,11 @@ int main() {
         switch (CONmtGetMode(&canNode.Nmt)) {
         // Auxiliary Mode
         case CO_PREOP:
+            // Turn the pump and fans off
+            pump.stop();
+            for (TMS::RadiatorFan fan : fans) {
+                fan.powerOn(0);
+            }
             break;
         // Operational Mode
         case CO_OPERATIONAL:
@@ -178,6 +191,12 @@ int main() {
             COTmrService(&canNode.Tmr);
             // Handle executing timer events that have elapsed
             COTmrProcess(&canNode.Tmr);
+
+            // Activate the pump and fans -- will be replaced with more advanced cooling logic later
+            pump.setSpeed(60);
+            for (TMS::RadiatorFan fan : fans) {
+                fan.powerOn(1);
+            }
             break;
         default:
             log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
