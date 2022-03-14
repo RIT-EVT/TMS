@@ -2,17 +2,34 @@
 #define TMS_INCLUDE_TMS_TMS_HPP
 
 #include <Canopen/co_core.h>
+#include <EVT/dev/Thermistor.hpp>
+
+namespace math {
+#include <cmath>
+}
+
+namespace DEV = EVT::core::DEV;
 
 namespace TMS {
 
 class TMS {
 public:
-    TMS() = default;
+    /**
+     * Construct a TMS instance with thermistors using the ADC instances in thermADCs
+     *
+     * @param thermADCs Array of pointers to ADCs used to create thermistor instances
+     */
+    TMS(EVT::core::IO::ADC* thermADCs[4]);
 
     /**
      * The node ID used to identify the device on the CAN network.
      */
     static constexpr uint8_t NODE_ID = 0x02;
+
+    /**
+     * Update the saved thermistor temperature values with the latest data from the thermistors
+     */
+     void updateTemps();
 
     /**
      * Get a pointer to the start of the CANopen object dictionary.
@@ -30,18 +47,31 @@ public:
 
 private:
     /**
-     * This sample data will be exposed over CAN through the object
-     * dictionary. The address of the variable will be included in the
-     * object dictionary and can be updated via SDO via a CANopen client.
-     * This device will then broadcast the value via a triggered PDO.
+     * Array to store the thermistor objects
      */
-    uint8_t sampleData;
+    DEV::Thermistor thermistors[4];
+
+    /**
+     * Array to store the thermistor values
+     */
+    uint8_t thermTemps[4];
+
+    /**
+     * Hardcoded conversion function from voltage to temperature in Celsius
+     *
+     * @param adcInput
+     * @return
+     */
+    static uint32_t conversion(uint32_t adcInput) {
+        return (uint32_t) (18.352 * math::pow(adcInput, 3) - 69.323 * math::pow(adcInput, 2) +
+                           121.29 * adcInput - 7.3735);
+    }
 
     /**
      * Have to know the size of the object dictionary for initialization
      * process.
      */
-    static constexpr uint16_t OBJECT_DICTIONARY_SIZE = 16;
+    static constexpr uint16_t OBJECT_DICTIONARY_SIZE = 22;
 
     CO_OBJ_T objectDictionary[OBJECT_DICTIONARY_SIZE + 1] = {
         // Sync ID, defaults to 0x80
@@ -121,18 +151,34 @@ private:
             .Data = (uintptr_t) 2000,
         },
 
-        // TPDO0 mapping, determins the PDO messages to send when TPDO1 is triggered
+        // TPDO0 mapping, determines the PDO messages to send when TPDO1 is triggered
         // 0: The number of PDO message associated with the TPDO
         // 1: Link to the first PDO message
         // n: Link to the nth PDO message
         {
             .Key = CO_KEY(0x1A00, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
             .Type = nullptr,
-            .Data = (uintptr_t) 1},
+            .Data = (uintptr_t) 1,
+        },
         {
             .Key = CO_KEY(0x1A00, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
             .Type = nullptr,
-            .Data = CO_LINK(0x2100, 0, 8)// Link to sample data position in dictionary
+            .Data = CO_LINK(0x2100, 0, 8)
+        },
+        {
+            .Key = CO_KEY(0x1A00, 2, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = CO_LINK(0x2100, 1, 8)
+        },
+        {
+            .Key = CO_KEY(0x1A00, 3, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = CO_LINK(0x2100, 2, 8)
+        },
+        {
+            .Key = CO_KEY(0x1A00, 4, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = CO_LINK(0x2100, 3, 8)
         },
 
         // User defined data, this will be where we put elements that can be
@@ -140,7 +186,22 @@ private:
         {
             .Key = CO_KEY(0x2100, 0, CO_UNSIGNED8 | CO_OBJ___PRW),
             .Type = nullptr,
-            .Data = (uintptr_t) &sampleData,
+            .Data = (uintptr_t) &thermTemps[0],
+        },
+        {
+            .Key = CO_KEY(0x2100, 1, CO_UNSIGNED8 | CO_OBJ___PRW),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermTemps[1],
+        },
+        {
+            .Key = CO_KEY(0x2100, 2, CO_UNSIGNED8 | CO_OBJ___PRW),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermTemps[2],
+        },
+        {
+            .Key = CO_KEY(0x2100, 3, CO_UNSIGNED8 | CO_OBJ___PRW),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermTemps[4],
         },
 
         // End of dictionary marker
