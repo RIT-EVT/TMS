@@ -58,7 +58,18 @@ private:
 
     /**
      * Hardcoded conversion function from voltage to temperature in Celsius
-     * Only works for values up to 73.783 deg C
+     *
+     * V(x): Converts from ADC units to voltage
+     * V(x) = (3.3/4095)x
+     *
+     * C(x): Converts from voltage to Celsius (supplied by TMS EE team)
+     * C(x) = 18.352x^3-69.323x^2+121.29x-7.3735
+     *
+     * m(x): Converts from Celsius to Millicelsius
+     * m(x) = 1000x
+     *
+     * m(C(V(x))): Converts from ADC units to Millicelsius
+     * m(C(V(x))) = (9604/10^9)x^3 - (4502/10^5)x^2 + (9774/10^2)x - 7374
      *
      * @param adcInput Raw voltage in ADC units out of a maximum of 4095
      * @return Temperature of the thermistor in Celsius
