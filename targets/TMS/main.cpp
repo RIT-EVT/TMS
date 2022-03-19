@@ -133,6 +133,7 @@ int main() {
         TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_2>()),
         TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_3>())};
 
+
     // Reserved memory for CANopen stack usage
     uint8_t sdoBuffer[1][CO_SDO_BUF_BYTE];
     CO_TMR_MEM appTmrMem[4];
