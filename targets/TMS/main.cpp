@@ -120,18 +120,18 @@ int main() {
     timer.stopTimer();
 
     // Set up TMS and necessary device drivers
-    TMS::TMS tms((IO::ADC*[4]) {
+    IO::ADC* adcs[4] = {
         &IO::getADC<IO::Pin::PC_0>(),
         &IO::getADC<IO::Pin::PC_1>(),
         &IO::getADC<IO::Pin::PB_0>(),
         &IO::getADC<IO::Pin::PA_4>(),
-    });
-    IO::PWM& pwm = IO::getPWM<IO::Pin::PA_0>();
-    TMS::HeatPump pump = TMS::HeatPump(pwm);
+    };
+    TMS::TMS tms(adcs);
+    IO::PWM& pwm = IO::getPWM<IO::Pin::PA_1>();
+    auto pump = TMS::HeatPump(pwm);
     TMS::RadiatorFan fans[] = {
         TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_2>()),
-        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_3>())
-    };
+        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_3>())};
 
     // Reserved memory for CANopen stack usage
     uint8_t sdoBuffer[1][CO_SDO_BUF_BYTE];
@@ -179,6 +179,8 @@ int main() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Entering loop");
 
     while (1) {
+        // Update the thermistor temperatures
+        tms.updateTemps();
         // Process incoming CAN messages
         CONodeProcess(&canNode);
 
@@ -187,7 +189,7 @@ int main() {
         case CO_PREOP:
             // Turn the pump and fans off
             pump.stop();
-            for(TMS::RadiatorFan fan : fans) {
+            for (TMS::RadiatorFan fan : fans) {
                 fan.powerOn(0);
             }
             break;
@@ -200,12 +202,14 @@ int main() {
 
             // Activate the pump and fans -- will be replaced with more advanced cooling logic later
             pump.setSpeed(60);
-            for(TMS::RadiatorFan fan : fans) {
+            for (TMS::RadiatorFan fan : fans) {
                 fan.powerOn(1);
             }
             break;
         default:
             log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
         }
+
+        time::wait(250);
     }
 }
