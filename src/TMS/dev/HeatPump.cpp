@@ -4,7 +4,7 @@ namespace TMS {
 
 HeatPump::HeatPump(IO::PWM& pwm) : pwm(pwm) {
     this->pwm.setPeriod(PERIOD);
-    isInitialized = false;
+    stop();
 }
 
 void HeatPump::setSpeed(uint8_t speed) {
@@ -23,7 +23,7 @@ void HeatPump::setSpeed(uint8_t speed) {
 }
 
 void HeatPump::stop() {
-    pwm.setDutyCycle(0);
+    pwm.setDutyCycle(STOP_DUTY_CYCLE);
     isInitialized = false;
 }
 

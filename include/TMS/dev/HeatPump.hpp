@@ -10,6 +10,7 @@
 // signal of >= 3 ms
 #define MIN_INIT_SPEED 7// d = t / P = .0035 / .0195 = .179; s = (d - .13) / .0072 = 6.87 ~ 7
 #define MAX_SPEED 100
+#define STOP_DUTY_CYCLE .1
 #define SPEED_TO_DUTY_CYCLE(speed) (speed * .0072 + .13)
 
 namespace IO = EVT::core::IO;
