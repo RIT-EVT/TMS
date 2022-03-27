@@ -3,15 +3,15 @@
 
 #include <EVT/io/PWM.hpp>
 
-// Maximum period is .02, so this value is set as close to the max as can be safe, which allows the
-// minimum of the init speed to be as low as possible
-#define PERIOD .0195
+// Maximum period is 200000 (2 s), so this value is set as close to the max as can be safe, which
+// allows the minimum of the init speed to be as low as possible
+#define PERIOD 19500
 // Value decided by the duty cycle and period to ensure the pump awakens with the appropriate high
-// signal of >= 3 ms
-#define MIN_INIT_SPEED 7// d = t / P = .0035 / .0195 = .179; s = (d - .13) / .0072 = 6.87 ~ 7
+// signal of >= 3000 (3 ms)
+#define MIN_INIT_SPEED 7// d = t / P = 3500 / 19500 * 100 = 17.9; s = (d - 13) / .72 = 6.87 ~ 7
 #define MAX_SPEED 100
-#define STOP_DUTY_CYCLE .1
-#define SPEED_TO_DUTY_CYCLE(speed) (speed * .0072 + .13)
+#define STOP_DUTY_CYCLE 10
+#define SPEED_TO_DUTY_CYCLE(speed) ((speed * 72 / 100) + 13)//d = (85 - 13)(s / 100) + 13
 
 namespace IO = EVT::core::IO;
 
@@ -35,7 +35,7 @@ public:
      *
      * @param speed Speed (0-100) to set the pump to
      */
-    void setSpeed(uint8_t speed);
+    void setSpeed(uint16_t speed);
 
     /**
      * Stop the pump

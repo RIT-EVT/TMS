@@ -7,7 +7,7 @@ HeatPump::HeatPump(IO::PWM& pwm) : pwm(pwm) {
     stop();
 }
 
-void HeatPump::setSpeed(uint8_t speed) {
+void HeatPump::setSpeed(uint16_t speed) {
     if (speed > MAX_SPEED) {
         speed = MAX_SPEED;
     } else if (speed == 0) {
