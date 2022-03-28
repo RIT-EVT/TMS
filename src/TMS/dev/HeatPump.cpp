@@ -4,10 +4,10 @@ namespace TMS {
 
 HeatPump::HeatPump(IO::PWM& pwm) : pwm(pwm) {
     this->pwm.setPeriod(PERIOD);
-    isInitialized = false;
+    stop();
 }
 
-void HeatPump::setSpeed(uint8_t speed) {
+void HeatPump::setSpeed(uint16_t speed) {
     if (speed > MAX_SPEED) {
         speed = MAX_SPEED;
     } else if (speed == 0) {
@@ -23,7 +23,7 @@ void HeatPump::setSpeed(uint8_t speed) {
 }
 
 void HeatPump::stop() {
-    pwm.setDutyCycle(0);
+    pwm.setDutyCycle(STOP_DUTY_CYCLE);
     isInitialized = false;
 }
 
