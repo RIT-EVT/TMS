@@ -18,8 +18,8 @@
 //    2. RAM efficiency
 // Validation result: Not run
 //
-#include <stdio.h>              // This example main program uses printf/fflush
-#include "CoolingLoop.h"               // Model's header file
+#include "TMS/loopLogic/CoolingLoop.h"// Model's header file
+#include <stdio.h>                    // This example main program uses printf/fflush
 
 static CoolingLoopModelClass rtObj;    // Instance of model class
 

@@ -18,7 +18,7 @@
 //    2. RAM efficiency
 // Validation result: Not run
 //
-#include "CoolingLoop.h"
+#include "TMS/loopLogic/CoolingLoop.h"
 
 // Private macros used by the generated code to access rtModel
 #ifndef rtmIsMajorTimeStep
