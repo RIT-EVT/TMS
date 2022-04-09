@@ -127,11 +127,12 @@ int main() {
         &IO::getADC<IO::Pin::PA_4>(),
     };
     TMS::TMS tms(adcs);
-    IO::PWM& pwm = IO::getPWM<IO::Pin::PA_1>();
+    IO::PWM& pwm = IO::getPWM<IO::Pin::PB_14>();
     auto pump = TMS::HeatPump(pwm);
     TMS::RadiatorFan fans[] = {
-        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_2>()),
-        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_3>())};
+        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_14>()),
+        //TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_3>()),
+    };
 
     // Reserved memory for CANopen stack usage
     uint8_t sdoBuffer[1][CO_SDO_BUF_BYTE];
