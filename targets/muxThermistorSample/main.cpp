@@ -9,6 +9,7 @@
 #include <EVT/io/ADC.hpp>
 #include <cstdlib>
 #include <EVT/utils/time.hpp>
+#include <EVT/io/PWM.hpp>
 
 namespace IO = EVT::core::IO;
 namespace time = EVT::core::time;
@@ -27,8 +28,14 @@ int main() {
    IO::GPIO* mux1 = &IO::getGPIO<IO::Pin::PB_2>();
    IO::GPIO* mux2 = &IO::getGPIO<IO::Pin::PB_8>();
 
+   IO::GPIO& fanCntrl = IO::getGPIO<IO::Pin::PC_14>();
+
 
    IO::ADC& adc = IO::getADC<IO::Pin::PA_4>();
+
+   IO::PWM& pwm = IO::getPWM<IO::Pin::PB_14>();
+   pwm.setPeriod(10000);
+   pwm.setDutyCycle(50);
 
    uint8_t thermNumber = 0;
    while (1) {
@@ -43,7 +50,9 @@ int main() {
            mux2->writePin(IO::GPIO::State::LOW);
        }
 
+       fanCntrl.writePin(IO::GPIO::State::HIGH);
        time::wait(500);
+       fanCntrl.writePin(IO::GPIO::State::LOW);
        uart.printf("Temp value for %d: %dmv\n\r", thermNumber,
                                                   (int)(adc.read() * 1000));
 
