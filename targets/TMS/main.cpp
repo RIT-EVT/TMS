@@ -120,13 +120,12 @@ int main() {
     timer.stopTimer();
 
     // Set up TMS and necessary device drivers
-    IO::ADC* adcs[4] = {
-        &IO::getADC<IO::Pin::PC_0>(),
-        &IO::getADC<IO::Pin::PC_1>(),
-        &IO::getADC<IO::Pin::PB_0>(),
-        &IO::getADC<IO::Pin::PA_4>(),
-    };
-    TMS::TMS tms(adcs);
+    IO::ADC* adcs = &IO::getADC<IO::Pin::PA_4>();
+//        &IO::getADC<IO::Pin::PC_1>(),
+//        &IO::getADC<IO::Pin::PB_0>(),
+//        &IO::getADC<IO::Pin::PA_4>(),
+//    };
+    TMS::TMS tms(&IO::getGPIO<IO::Pin::PB_2>(), &IO::getGPIO<IO::Pin::PB_8>(), adcs);
     IO::PWM& pwm = IO::getPWM<IO::Pin::PB_14>();
     auto pump = TMS::HeatPump(pwm);
     TMS::RadiatorFan fans[] = {
