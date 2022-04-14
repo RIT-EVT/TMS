@@ -2,14 +2,8 @@
 
 namespace TMS {
 
-TMS::TMS(IO::GPIO* m1, IO::GPIO* m2, IO::ADC* thermADCs/*[4]*/) : mux1(m1), mux2(m2),
-                                                  thermistor(DEV::Thermistor(*thermADCs, conversion))
-                                                      /*{
-    DEV::Thermistor(*thermADCs[0], conversion),
-    DEV::Thermistor(*thermADCs[1], conversion),
-    DEV::Thermistor(*thermADCs[2], conversion),
-    DEV::Thermistor(*thermADCs[3], conversion),
-}*/ {}
+TMS::TMS(IO::GPIO* m1, IO::GPIO* m2, IO::ADC* thermADC) : thermistor(DEV::Thermistor(*thermADC, conversion)),
+                                                           mux1(m1), mux2(m2) {}
 
 void TMS::updateTemps() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Updating Temps");
@@ -24,7 +18,7 @@ void TMS::updateTemps() {
         } else {
             mux2->writePin(IO::GPIO::State::LOW);
         }
-        thermTemps[i] = thermistor/*s[i]*/.getTempCelcius();
+        thermTemps[i] = thermistor.getTempCelcius();
     }
 }
 

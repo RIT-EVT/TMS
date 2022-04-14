@@ -21,7 +21,7 @@ public:
      *
      * @param thermADCs Array of pointers to ADCs used to create thermistor instances
      */
-    TMS(IO::GPIO* m1, IO::GPIO* m2, EVT::core::IO::ADC* thermADCs/*[NUM_THERMISTORS]*/);
+    TMS(IO::GPIO* m1, IO::GPIO* m2, EVT::core::IO::ADC* thermADC);
 
     /**
      * The node ID used to identify the device on the CAN network.
@@ -51,7 +51,7 @@ private:
     /**
      * Array to store the thermistor objects
      */
-    DEV::Thermistor thermistor/*s[NUM_THERMISTORS]*/;
+    DEV::Thermistor thermistor;
 
     IO::GPIO* mux1;
     IO::GPIO* mux2;
