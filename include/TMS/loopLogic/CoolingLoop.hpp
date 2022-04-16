@@ -3,8 +3,7 @@
 #ifndef TMS_INCLUDE_TMS_LOOPLOGIC_COOLINGLOOP_HPP
 #define TMS_INCLUDE_TMS_LOOPLOGIC_COOLINGLOOP_HPP
 
-#include <EVT/dev/RTCTimer.hpp>
-#include <EVT/dev/platform/f3xx/f302x8/RTC302x8.hpp>
+#include <EVT/utils/time.hpp>
 #include <cstdint>
 
 #define TIME_DELAY 1000
@@ -13,7 +12,6 @@
 #define INTEGRATOR_MIN (-INTEGRATOR_INCREMENT * 50)
 #define TARGET_TEMP 30000
 
-namespace DEV = EVT::core::DEV;
 namespace time = EVT::core::time;
 
 namespace TMS {

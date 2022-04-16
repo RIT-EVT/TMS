@@ -5,6 +5,8 @@
 #include <EVT/dev/Thermistor.hpp>
 #include <EVT/io/GPIO.hpp>
 #include <EVT/utils/log.hpp>
+#include <TMS/dev/HeatPump.hpp>
+#include <TMS/dev/RadiatorFan.hpp>
 
 #define NUM_THERMISTORS 4
 
@@ -21,7 +23,7 @@ public:
      *
      * @param thermADCs Array of pointers to ADCs used to create thermistor instances
      */
-    TMS(IO::GPIO& m1, IO::GPIO& m2, EVT::core::IO::ADC& thermADC);
+    TMS(IO::GPIO& m1, IO::GPIO& m2, IO::ADC& thermADC, RadiatorFan fan, HeatPump pump);
 
     /**
      * The node ID used to identify the device on the CAN network.
@@ -32,6 +34,10 @@ public:
      * Update the saved thermistor temperature values with the latest data from the thermistors
      */
     void updateTemps();
+
+    void preopMode();
+
+    void opMode();
 
     /**
      * Get a pointer to the start of the CANopen object dictionary.
@@ -53,6 +59,9 @@ private:
      */
     DEV::Thermistor thermistor;
 
+    /**
+     * GPIO Pins used to control the MUX
+     */
     IO::GPIO& mux1;
     IO::GPIO& mux2;
 
@@ -60,6 +69,10 @@ private:
      * Array to store the thermistor values
      */
     uint32_t thermTemps[NUM_THERMISTORS];
+
+    RadiatorFan fan;
+
+    HeatPump pump;
 
     /**
      * Hardcoded conversion function from voltage to temperature in Celsius

@@ -121,12 +121,11 @@ int main() {
 
     // Set up TMS and necessary device drivers
     IO::ADC& adc = IO::getADC<IO::Pin::PA_4>();
-    TMS::TMS tms(IO::getGPIO<IO::Pin::PB_2>(), IO::getGPIO<IO::Pin::PB_8>(), adc);
-    IO::PWM& pwm = IO::getPWM<IO::Pin::PB_14>();
-    auto pump = TMS::HeatPump(pwm);
-    TMS::RadiatorFan fans[] = {
-        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_14>()),
-    };
+    IO::GPIO& mux1 = IO::getGPIO<IO::Pin::PB_2>();
+    IO::GPIO& mux2 = IO::getGPIO<IO::Pin::PB_8>();
+    auto fan = TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_14>());
+    auto pump = TMS::HeatPump(IO::getPWM<IO::Pin::PB_14>());
+    TMS::TMS tms(mux1, mux2, adc, fan, pump);
 
     // Reserved memory for CANopen stack usage
     uint8_t sdoBuffer[1][CO_SDO_BUF_BYTE];
@@ -182,11 +181,7 @@ int main() {
         switch (CONmtGetMode(&canNode.Nmt)) {
         // Auxiliary Mode
         case CO_PREOP:
-            // Turn the pump and fans off
-            pump.stop();
-            for (TMS::RadiatorFan fan : fans) {
-                fan.powerOn(0);
-            }
+            tms.preopMode();
             break;
         // Operational Mode
         case CO_OPERATIONAL:
@@ -195,11 +190,7 @@ int main() {
             // Handle executing timer events that have elapsed
             COTmrProcess(&canNode.Tmr);
 
-            // Activate the pump and fans -- will be replaced with more advanced cooling logic later
-            pump.setSpeed(60);
-            for (TMS::RadiatorFan fan : fans) {
-                fan.powerOn(1);
-            }
+            tms.opMode();
             break;
         default:
             log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
