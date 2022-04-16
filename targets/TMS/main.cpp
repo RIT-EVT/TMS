@@ -120,18 +120,13 @@ int main() {
     timer.stopTimer();
 
     // Set up TMS and necessary device drivers
-    IO::ADC* adcs[4] = {
-        &IO::getADC<IO::Pin::PC_0>(),
-        &IO::getADC<IO::Pin::PC_1>(),
-        &IO::getADC<IO::Pin::PB_0>(),
-        &IO::getADC<IO::Pin::PA_4>(),
-    };
-    TMS::TMS tms(adcs);
-    IO::PWM& pwm = IO::getPWM<IO::Pin::PA_1>();
+    IO::ADC& adc = IO::getADC<IO::Pin::PA_4>();
+    TMS::TMS tms(IO::getGPIO<IO::Pin::PB_2>(), IO::getGPIO<IO::Pin::PB_8>(), adc);
+    IO::PWM& pwm = IO::getPWM<IO::Pin::PB_14>();
     auto pump = TMS::HeatPump(pwm);
     TMS::RadiatorFan fans[] = {
-        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_2>()),
-        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_3>())};
+        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_14>()),
+    };
 
     // Reserved memory for CANopen stack usage
     uint8_t sdoBuffer[1][CO_SDO_BUF_BYTE];
