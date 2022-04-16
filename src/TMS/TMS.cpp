@@ -3,7 +3,7 @@
 namespace TMS {
 
 TMS::TMS(IO::GPIO& m1, IO::GPIO& m2, IO::ADC& thermADC) : thermistor(DEV::Thermistor(thermADC, conversion)),
-                                                           mux1(m1), mux2(m2) {}
+                                                          mux1(m1), mux2(m2) {}
 
 void TMS::updateTemps() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Updating Temps");
