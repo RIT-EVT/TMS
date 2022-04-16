@@ -12,10 +12,26 @@ TMS::CoolingLoop::CoolingLoop(uint32_t& tempAfterInverter, uint32_t& tempAfterMo
                                                                        pumpSpeed(pumpSpeed),
                                                                        fanControl(fanControl) {
     tempIntegrator = 0;
+    lastAttemptTime = 0;
 }
 
 void TMS::CoolingLoop::updateLoop() {
-    if (tempRadiator2 - tempRadiator2 >= 10000 && tempAfterMotor >= 40) {
-        fanControl = true;
+    fanControl = (tempRadiator2 - tempRadiator2 >= 10000 && tempAfterMotor >= 40);
+
+    if (time::millis() - lastAttemptTime > TIME_DELAY) {
+        tempIntegrator += (long) tempAfterMotor - TARGET_TEMP;
+        if (tempIntegrator >= 0) {
+            pumpSpeed = tempIntegrator / INTEGRATOR_INCREMENT;
+        } else {
+            pumpSpeed = 0;
+        }
+
+        if (tempIntegrator > INTEGRATOR_MAX) {
+            tempIntegrator = INTEGRATOR_MAX;
+        } else if (tempIntegrator < INTEGRATOR_MIN) {
+            tempIntegrator = INTEGRATOR_MIN;
+        }
+
+        lastAttemptTime = time::millis();
     }
 }
