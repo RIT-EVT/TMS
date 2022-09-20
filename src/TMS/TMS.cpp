@@ -19,6 +19,8 @@ void TMS::updateTemps() {
             mux2.writePin(IO::GPIO::State::LOW);
         }
         thermTemps[i] = thermistor.getTempCelcius();
+
+        thermVoltages[i] = ((uint64_t)thermistor.getRawADC()) * 3300 / 4095;
     }
 }
 
