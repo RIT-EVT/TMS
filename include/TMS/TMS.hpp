@@ -377,17 +377,17 @@ private:
         {
             .Key = CO_KEY(0x2100, 4, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
-            .Data = (uintptr_t) &thermVoltages[3],
+            .Data = (uintptr_t) &thermVoltages[0],
         },
         {
             .Key = CO_KEY(0x2100, 5, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
-            .Data = (uintptr_t) &thermVoltages[3],
+            .Data = (uintptr_t) &thermVoltages[1],
         },
         {
             .Key = CO_KEY(0x2100, 6, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
-            .Data = (uintptr_t) &thermVoltages[3],
+            .Data = (uintptr_t) &thermVoltages[2],
         },
         {
             .Key = CO_KEY(0x2100, 7, CO_UNSIGNED32 | CO_OBJ___PR_),
