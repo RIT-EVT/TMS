@@ -272,7 +272,7 @@ private:
             .Data = (uintptr_t) 2000,
         },
 
-        // TPDO0 mapping, determines the PDO messages to send when TPDO1 is triggered
+        // TPDO0 mapping, determines the PDO messages to send when TPDO0 is triggered
         // 0: The number of PDO messages associated with the TPDO
         // 1: Link to the first PDO message
         // n: Link to the nth PDO message
@@ -312,7 +312,7 @@ private:
             .Data = CO_LINK(0x2100, 3, 8),
         },
 
-        // TPDO2 mapping, determines the PDO messages to send when TPDO1 is triggered
+        // TPDO2 mapping, determines the PDO messages to send when TPDO2 is triggered
         // 0: The number of PDO messages associated with the TPDO
         // 1: Link to the first PDO message
         // n: Link to the nth PDO message
@@ -332,7 +332,7 @@ private:
             .Data = CO_LINK(0x2100, 5, 8),
         },
 
-        // TPDO3 mapping, determines the PDO messages to send when TPDO1 is triggered
+        // TPDO3 mapping, determines the PDO messages to send when TPDO3 is triggered
         // 0: The number of PDO messages associated with the TPDO
         // 1: Link to the first PDO message
         // n: Link to the nth PDO message
@@ -360,24 +360,14 @@ private:
             .Data = (uintptr_t) &thermTemps[0],
         },
         {
-            .Key = CO_KEY(0x2100, 1, CO_UNSIGNED32 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &thermTemps[1],
-        },
-        {
-            .Key = CO_KEY(0x2100, 2, CO_UNSIGNED32 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &thermTemps[2],
-        },
-        {
-            .Key = CO_KEY(0x2100, 3, CO_UNSIGNED32 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &thermTemps[3],
-        },
-        {
             .Key = CO_KEY(0x2100, 4, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermVoltages[0],
+        },
+        {
+            .Key = CO_KEY(0x2100, 1, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermTemps[1],
         },
         {
             .Key = CO_KEY(0x2100, 5, CO_UNSIGNED32 | CO_OBJ___PR_),
@@ -385,9 +375,19 @@ private:
             .Data = (uintptr_t) &thermVoltages[1],
         },
         {
+            .Key = CO_KEY(0x2100, 2, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermTemps[2],
+        },
+        {
             .Key = CO_KEY(0x2100, 6, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermVoltages[2],
+        },
+        {
+            .Key = CO_KEY(0x2100, 3, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermTemps[3],
         },
         {
             .Key = CO_KEY(0x2100, 7, CO_UNSIGNED32 | CO_OBJ___PR_),

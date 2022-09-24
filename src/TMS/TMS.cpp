@@ -20,7 +20,7 @@ void TMS::updateTemps() {
         }
         thermTemps[i] = thermistor.getTempCelcius();
 
-        thermVoltages[i] = ((uint64_t)thermistor.getRawADC()) * 3300 / 4095;
+        thermVoltages[i] = (thermistor.getRawADC()) * 3300 / 4095;
     }
 }
 
