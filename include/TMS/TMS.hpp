@@ -360,19 +360,9 @@ private:
             .Data = (uintptr_t) &thermTemps[0],
         },
         {
-            .Key = CO_KEY(0x2100, 4, CO_UNSIGNED32 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &thermVoltages[0],
-        },
-        {
             .Key = CO_KEY(0x2100, 1, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermTemps[1],
-        },
-        {
-            .Key = CO_KEY(0x2100, 5, CO_UNSIGNED32 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &thermVoltages[1],
         },
         {
             .Key = CO_KEY(0x2100, 2, CO_UNSIGNED32 | CO_OBJ___PR_),
@@ -380,14 +370,24 @@ private:
             .Data = (uintptr_t) &thermTemps[2],
         },
         {
-            .Key = CO_KEY(0x2100, 6, CO_UNSIGNED32 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &thermVoltages[2],
-        },
-        {
             .Key = CO_KEY(0x2100, 3, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermTemps[3],
+        },
+        {
+            .Key = CO_KEY(0x2100, 4, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermVoltages[0],
+        },
+        {
+            .Key = CO_KEY(0x2100, 5, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermVoltages[1],
+        },
+        {
+            .Key = CO_KEY(0x2100, 6, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermVoltages[2],
         },
         {
             .Key = CO_KEY(0x2100, 7, CO_UNSIGNED32 | CO_OBJ___PR_),
