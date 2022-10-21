@@ -354,45 +354,54 @@ private:
 
         // User defined data, this will be where we put elements that can be
         // accessed via SDO and depending on configuration PDO
+
+        /**
+        * The discrepency with the case and voltage index is due to an apparent miswiring in the TMS itself
+        * The conversion to read temperatures in the correct order is as follows:
+        * [Temp 1] is actually from [Temp 2]
+        * [Temp 2] is actually from [Temp 3]
+        * [Temp 3] is actually from [Temp 4]
+        * [Temp 4] is actually from [Temp 1]
+        */
         {
             .Key = CO_KEY(0x2100, 0, CO_UNSIGNED32 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &thermTemps[0],
-        },
-        {
-            .Key = CO_KEY(0x2100, 1, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermTemps[1],
         },
         {
-            .Key = CO_KEY(0x2100, 2, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Key = CO_KEY(0x2100, 1, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermTemps[2],
         },
         {
-            .Key = CO_KEY(0x2100, 3, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Key = CO_KEY(0x2100, 2, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermTemps[3],
         },
         {
-            .Key = CO_KEY(0x2100, 4, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Key = CO_KEY(0x2100, 3, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
-            .Data = (uintptr_t) &thermVoltages[0],
+            .Data = (uintptr_t) &thermTemps[0],
         },
         {
-            .Key = CO_KEY(0x2100, 5, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Key = CO_KEY(0x2100, 4, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermVoltages[1],
         },
         {
-            .Key = CO_KEY(0x2100, 6, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Key = CO_KEY(0x2100, 5, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermVoltages[2],
         },
         {
-            .Key = CO_KEY(0x2100, 7, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Key = CO_KEY(0x2100, 6, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermVoltages[3],
+        },
+        {
+            .Key = CO_KEY(0x2100, 7, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermVoltages[0],
         },
 
         // End of dictionary marker
