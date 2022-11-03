@@ -9,7 +9,7 @@
 #define PERIOD 1053
 #define MAX_SPEED 100
 #define STOP_DUTY_CYCLE 10
-#define SPEED_TO_DUTY_CYCLE(speed) ((speed * 72 / 100) + 13) //d = (85 - 13)(s / 100) + 13
+#define SPEED_TO_DUTY_CYCLE(speed) ((speed * 72 / 100) + 13)//d = (85 - 13)(s / 100) + 13
 
 namespace IO = EVT::core::IO;
 

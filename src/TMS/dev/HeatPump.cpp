@@ -1,14 +1,13 @@
-#include <TMS/dev/HeatPump.hpp>
 #include <EVT/utils/time.hpp>
+#include <TMS/dev/HeatPump.hpp>
 
 namespace time = EVT::core::time;
-
 
 namespace TMS {
 
 HeatPump::HeatPump(IO::PWM& pwm) : pwm(pwm) {
-    this->pwm.setDutyCycle(100); // setting the duty cycle to 100% to initially start the pump
-    time::wait(3); // turning on the pump for 3 milliseconds (must do according to data sheet)
+    this->pwm.setDutyCycle(100);// setting the duty cycle to 100% to initially start the pump
+    time::wait(3);              // turning on the pump for 3 milliseconds (must do according to data sheet)
     this->pwm.setPeriod(PERIOD);
     stop();
 }
