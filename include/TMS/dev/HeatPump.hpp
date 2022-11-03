@@ -4,6 +4,7 @@
 #include <EVT/io/PWM.hpp>
 
 // We want to maximize frequency, the max frequency can be 950 HZ.
+// NOTE: Datasheet says 1000 Hz but I have put it down 50 Hz for some errors that can occur will running at max
 // To achieve this period must be T = 1/950 seconds which is (~ 1053 microseconds or 1.053 ms)
 #define PERIOD 1053
 #define MAX_SPEED 100
