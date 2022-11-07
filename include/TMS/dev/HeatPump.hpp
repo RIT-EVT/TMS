@@ -2,6 +2,7 @@
 #define TMS_INCLUDE_TMS_DEV_HEATPUMP_HPP
 
 #include <EVT/io/PWM.hpp>
+#include <EVT/utils/time.hpp>
 
 // We want to maximize frequency, the max frequency can be 950 HZ.
 // NOTE: Datasheet says 1000 Hz but I have put it down 50 Hz for some errors that can occur will running at max
@@ -12,6 +13,8 @@
 #define SPEED_TO_DUTY_CYCLE(speed) ((speed * 72 / 100) + 13)//d = (85 - 13)(s / 100) + 13
 
 namespace IO = EVT::core::IO;
+namespace time = EVT::core::time;
+
 
 namespace TMS {
 
@@ -43,13 +46,6 @@ public:
 private:
     /** PWM instance to control the pump */
     IO::PWM& pwm;
-    /**
-     * Whether or not the pump is initialized
-     *
-     * Necessary because the speed of the pump needs to be set differently depending on whether it
-     * has been initialized
-     */
-    bool isInitialized;
 };
 
 }// namespace TMS

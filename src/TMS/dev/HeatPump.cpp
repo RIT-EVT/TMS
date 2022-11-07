@@ -1,7 +1,4 @@
-#include <EVT/utils/time.hpp>
 #include <TMS/dev/HeatPump.hpp>
-
-namespace time = EVT::core::time;
 
 namespace TMS {
 
@@ -21,12 +18,10 @@ void HeatPump::setSpeed(uint16_t speed) {
     }
 
     pwm.setDutyCycle(SPEED_TO_DUTY_CYCLE(speed));
-    isInitialized = true;
 }
 
 void HeatPump::stop() {
     pwm.setDutyCycle(STOP_DUTY_CYCLE);
-    isInitialized = false;
 }
 
 }// namespace TMS
