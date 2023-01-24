@@ -94,7 +94,7 @@ int main() {
             default:
                 break;
             }
-            if(i < 10) {
+            if (i < 10) {
                 rollAvg = 0;
             } else {
                 rollAvg = calcAvg(lastTen);
