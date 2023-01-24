@@ -37,11 +37,8 @@ int main() {
     uint32_t rollAvg = 0;
     uint32_t lastTen[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     unsigned int counter = 0;
-    unsigned int looper = 1;
-    uint32_t currV1 = -1;
-    uint32_t currV2 = -1;
-    uint32_t currV3 = -1;
-    uint32_t currV4 = -1;
+    unsigned int looper = 0;
+    int32_t currV[] = {-1, -1, -1, -1};
 
     uart.printf("Starting ADC Voltage Testing -----\r\n");
 
@@ -58,48 +55,52 @@ int main() {
          */
         for (int i = 0; i < 100; i++) {
             switch (looper) {
-            case 1:
+            case 0:
                 switchMux(muxs3, muxs2, muxs1, 0, 0, 0);
                 time::wait(1);
-                currV2 = adc.readRaw();
-                lastTen[counter] = currV2;
-                currV1 = -1;
-                currV3 = -1;
-                currV4 = -1;
+                currV[1] = adc.readRaw();
+                lastTen[counter] = currV[1];
+                currV[0] = -1;
+                currV[2] = -1;
+                currV[3] = -1;
                 break;
-            case 2:
+            case 1:
                 switchMux(muxs3, muxs2, muxs1, 0, 0, 1);
                 time::wait(1);
-                currV3 = adc.readRaw();
-                lastTen[counter] = currV3;
-                currV1 = -1;
-                currV2 = -1;
-                currV4 = -1;
+                currV[2] = adc.readRaw();
+                lastTen[counter] = currV[2];
+                currV[0] = -1;
+                currV[1] = -1;
+                currV[3] = -1;
                 break;
-            case 3:
+            case 2:
                 switchMux(muxs3, muxs2, muxs1, 0, 1, 0);
                 time::wait(1);
-                currV4 = adc.readRaw();
-                lastTen[counter] = currV4;
-                currV1 = -1;
-                currV2 = -1;
-                currV3 = -1;
+                currV[3] = adc.readRaw();
+                lastTen[counter] = currV[3];
+                currV[0] = -1;
+                currV[1] = -1;
+                currV[2] = -1;
                 break;
-            case 4:
+            case 3:
                 switchMux(muxs3, muxs2, muxs1, 0, 1, 1);
                 time::wait(1);
-                currV1 = adc.readRaw();
-                lastTen[counter] = currV1;
-                currV4 = -1;
-                currV2 = -1;
-                currV3 = -1;
+                currV[0] = adc.readRaw();
+                lastTen[counter] = currV[0];
+                currV[3] = -1;
+                currV[1] = -1;
+                currV[2] = -1;
                 break;
             default:
                 break;
             }
-            rollAvg = calcAvg(lastTen);
+            if(i < 10) {
+                rollAvg = 0;
+            } else {
+                rollAvg = calcAvg(lastTen);
+            }
 
-            uart.printf("%d, %d, %d, %d, ", currV1, currV2, currV3, currV4);
+            uart.printf("%d, %d, %d, %d, ", currV[0], currV[1], currV[2], currV[3]);
             uart.printf("%d\r\n", rollAvg);
 
             if (counter == 10) {
@@ -108,6 +109,6 @@ int main() {
                 counter++;
             }
         }
-        looper == 4 ? looper = 1 : looper++;
+        looper = (looper + 1) % 4;
     }
 }

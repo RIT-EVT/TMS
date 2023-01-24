@@ -20,6 +20,9 @@ void TMS::updateTemps() {
         }
         thermTemps[i] = thermistor.getTempCelcius();
 
+        //SUBJECT TO CHANGE
+        //ADC values are multiplied by 3300 to scale to the 3.3V
+        //the value is then divided by the 4095 possible ADC values
         thermVoltages[i] = (thermistor.getRawADC()) * 3300 / 4095;
     }
 }
