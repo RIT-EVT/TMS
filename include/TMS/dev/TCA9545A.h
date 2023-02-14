@@ -7,14 +7,13 @@ namespace IO = EVT::core::IO;
 
 namespace TCA9545A {
 
-constexpr uint8_t TCA9545A_I2C_ADDR = 0x00;
+constexpr uint8_t TCA9545A_I2C_ADDR = 0x73; // Address can change based on pins
 
 enum TCA9545A_BUS {
     BUS_0 = 0x01,
     BUS_1 = 0x02,
     BUS_2 = 0x04,
     BUS_3 = 0x08,
-
 };
 
 class TCA9545A {
