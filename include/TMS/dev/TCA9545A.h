@@ -1,7 +1,7 @@
 #ifndef TMS_TCA9545A_H
 #define TMS_TCA9545A_H
 
-#include <stdint.h>
+#include <cstddef>
 #include <EVT/io/I2C.hpp>
 
 namespace IO = EVT::core::IO;
@@ -53,10 +53,9 @@ private:
      * Reads a value from a register on the TCA9545A
      * @param reg[in] The register to read from
      * @param val[out] The value read from the register
-     * @param len[in] The length of the value to read
      * @return Result of the I2C read operation
      */
-    IO::I2C::I2CStatus readRegister(uint8_t reg, uint8_t* val, size_t len);
+    IO::I2C::I2CStatus readRegister(uint8_t reg, uint8_t* val);
 };
 }
 
