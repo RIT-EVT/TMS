@@ -13,6 +13,7 @@
 #include <TMS/TMS.hpp>
 #include <TMS/dev/HeatPump.hpp>
 #include <TMS/dev/RadiatorFan.hpp>
+#include <TMS/dev/TMP117.hpp>
 
 namespace IO = EVT::core::IO;
 namespace DEV = EVT::core::DEV;
