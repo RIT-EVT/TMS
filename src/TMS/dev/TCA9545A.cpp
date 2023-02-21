@@ -18,7 +18,6 @@ IO::I2C::I2CStatus TCA9545A::setBus(uint8_t bus, bool toggled) {
     default:
         return IO::I2C::I2CStatus::ERROR;
     }
-
 }
 
 IO::I2C::I2CStatus TCA9545A::writeRegister(uint8_t reg, uint8_t val) {

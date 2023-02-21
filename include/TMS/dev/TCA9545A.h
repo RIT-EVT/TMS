@@ -70,6 +70,16 @@ private:
      * @return Result of the I2C read operation
      */
     IO::I2C::I2CStatus readRegister(uint8_t reg, uint8_t* val);
+
+
+    /**
+     * Function pointer to an I2C Device's function specified by the user
+     *
+     * @param i2cDevice[in] Array of I2C devices
+     * @param params[in] Array of parameters to pass to the I2C device
+     * @return
+     */
+    IO::I2C::I2CStatus (*i2cAction)(void* i2cDevice, void* params)
 };
 
 }
