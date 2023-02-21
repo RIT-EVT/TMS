@@ -5,8 +5,7 @@ namespace TCA9545A {
 TCA9545A::TCA9545A(IO::I2C& i2c) : i2c(i2c) {};
 
 IO::I2C::I2CStatus TCA9545A::setBus(uint8_t bus, bool toggled) {
-    IO::I2C::I2CStatus ret;
-    uint8_t val = toggled ? 1 : 0;
+    uint8_t val = static_cast<uint8_t>(toggled);
     switch (bus) {
     case 0:
         return writeRegister(TCA9545A_BUS::BUS_0, val);
