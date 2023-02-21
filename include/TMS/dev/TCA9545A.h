@@ -37,6 +37,12 @@ public:
      */
     IO::I2C::I2CStatus setBus(uint8_t bus, bool toggled);
 
+    /**
+     * Toggles a specified bus between on and off
+     *
+     * @param bus - The bus to toggle
+     * @return Result of I2C write operation
+     */
     IO::I2C::I2CStatus toggleBus(uint8_t bus);
 
 private:
