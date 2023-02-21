@@ -14,19 +14,15 @@ namespace TMS {
 
 class TMP117 {
 public:
-    TMP117(IO::I2C& i2c);
+    TMP117(IO::I2C& i2c, uint8_t deviceID);
     uint16_t readTemp();
 
 private:
     constexpr static uint8_t* tempReg = 0x00;
-    constexpr static uint8_t deviceID = 0x48;
-
+    uint8_t deviceID;
     IO::I2C& i2c;
-    uint8_t tempBytes[2];
     uint8_t regLength = 1;
     uint8_t valueLength = 2;
-    uint16_t byte1;
     uint16_t temp;
-
 };
 }
