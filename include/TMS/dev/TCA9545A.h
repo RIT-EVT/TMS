@@ -54,6 +54,7 @@ private:
     IO::I2C& i2c;
     I2CDevice::I2CDevice** busDevices[I2C_MUX_BUS_SIZE];
     uint8_t numDevices[4];
+    uint8_t addr;
 
     /**
      * Writes a value to a register on the TCA9545A

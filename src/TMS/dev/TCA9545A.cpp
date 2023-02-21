@@ -2,7 +2,7 @@
 
 namespace TCA9545A {
 
-TCA9545A::TCA9545A(IO::I2C& i2c) : i2c(i2c) {};
+TCA9545A::TCA9545A(IO::I2C& i2c) : i2c(i2c), addr(addr) {};
 
 IO::I2C::I2CStatus TCA9545A::setBus(uint8_t bus, bool toggled) {
     uint8_t val = static_cast<uint8_t>(toggled);
@@ -21,11 +21,11 @@ IO::I2C::I2CStatus TCA9545A::setBus(uint8_t bus, bool toggled) {
 }
 
 IO::I2C::I2CStatus TCA9545A::writeRegister(uint8_t reg, uint8_t val) {
-    return i2c.writeReg(TCA9545A_I2C_ADDR, reg, val);
+    return i2c.writeReg(addr, reg, val);
 }
 
 IO::I2C::I2CStatus TCA9545A::readRegister(uint8_t reg, uint8_t* val) {
-    return i2c.readReg(TCA9545A_I2C_ADDR, reg, val);
+    return i2c.readReg(addr, reg, val);
 }
 
 void TCA9545A::pollDevices() {
