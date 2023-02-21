@@ -25,7 +25,7 @@ enum TCA9545A_BUS {
  * TCA9545A I2C Multiplexer Driver
  * https://www.ti.com/lit/ds/symlink/tca9545a.pdf
  */
-class TCA9545A {
+class TCA9545A : I2CDevice::I2CDevice {
 public:
 
     /**
@@ -54,7 +54,7 @@ private:
     IO::I2C& i2c;
     I2CDevice::I2CDevice** busDevices[I2C_MUX_BUS_SIZE];
     uint8_t numDevices[4];
-    uint8_t addr;
+    uint8_t slaveAddress;
 
     /**
      * Writes a value to a register on the TCA9545A
