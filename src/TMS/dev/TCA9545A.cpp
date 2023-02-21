@@ -27,4 +27,19 @@ IO::I2C::I2CStatus TCA9545A::writeRegister(uint8_t reg, uint8_t val) {
 IO::I2C::I2CStatus TCA9545A::readRegister(uint8_t reg, uint8_t* val) {
     return i2c.readReg(TCA9545A_I2C_ADDR, reg, val);
 }
+
+void TCA9545A::pollDevices() {
+    for (int i = 0; i < I2C_MUX_BUS_SIZE; i++) {
+        if (this->setBus(i, true) == IO::I2C::I2CStatus::ERROR) {
+            continue;
+        }
+
+        for (int j = 0; j < numDevices[i]; j++) {
+            (*busDevices[i] + j)->action();
+        }
+    }
+}
+
+
+
 } // namespace TCA9545A

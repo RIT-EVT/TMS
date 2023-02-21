@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <EVT/io/I2C.hpp>
+#include <TMS/dev/I2CDevice.h>
 
 namespace IO = EVT::core::IO;
 
@@ -44,15 +45,15 @@ public:
     IO::I2C::I2CStatus setBus(uint8_t bus, bool toggled);
 
     /**
-     * Toggles a specified bus between on and off
-     *
-     * @param bus - The bus to toggle
-     * @return Result of I2C write operation
+     * Runs all actions on all I2CDevices stored in the bus
      */
-    IO::I2C::I2CStatus toggleBus(uint8_t bus);
+    void pollDevices();
 
 private:
+    static constexpr uint8_t I2C_MUX_BUS_SIZE = 4;
     IO::I2C& i2c;
+    I2CDevice** busDevices[I2C_MUX_BUS_SIZE];
+    uint8_t numDevices[4];
 
     /**
      * Writes a value to a register on the TCA9545A
@@ -70,16 +71,6 @@ private:
      * @return Result of the I2C read operation
      */
     IO::I2C::I2CStatus readRegister(uint8_t reg, uint8_t* val);
-
-
-    /**
-     * Function pointer to an I2C Device's function specified by the user
-     *
-     * @param i2cDevice[in] Array of I2C devices
-     * @param params[in] Array of parameters to pass to the I2C device
-     * @return
-     */
-    IO::I2C::I2CStatus (*i2cAction)(void* i2cDevice, void* params)
 };
 
 }

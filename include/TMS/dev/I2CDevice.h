@@ -1,7 +1,3 @@
-//
-// Created by aaron on 2/20/23.
-//
-
 #ifndef TMS_I2CDEVICE_H
 #define TMS_I2CDEVICE_H
 
