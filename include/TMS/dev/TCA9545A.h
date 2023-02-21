@@ -22,10 +22,16 @@ enum TCA9545A_BUS {
 
 /**
  * TCA9545A I2C Multiplexer Driver
- * https://www.ti.com/lit/ds/symlink/tca9545a.pdf?ts=1676581408943
+ * https://www.ti.com/lit/ds/symlink/tca9545a.pdf
  */
 class TCA9545A {
 public:
+
+    /**
+     * Constructor for the TCA9545A driver
+     *
+     * @param i2c I2C device for communicating with TCA
+     */
     TCA9545A(IO::I2C& i2c);
 
     /**
@@ -65,6 +71,7 @@ private:
      */
     IO::I2C::I2CStatus readRegister(uint8_t reg, uint8_t* val);
 };
+
 }
 
 #endif//TMS_TCA9545A_H
