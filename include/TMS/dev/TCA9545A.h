@@ -9,7 +9,7 @@ namespace IO = EVT::core::IO;
 
 namespace TCA9545A {
 
-constexpr uint8_t TCA9545A_I2C_ADDR = 0x73; // Address can change based on pins
+constexpr uint8_t TCA9545A_DEFAULT_I2C_ADDR = 0x73;
 
 /**
  * Represents the registers for setting the active bus on the TCA9545A
@@ -33,7 +33,7 @@ public:
      *
      * @param i2c I2C device for communicating with TCA
      */
-    TCA9545A(IO::I2C& i2c);
+    TCA9545A(IO::I2C& i2c, uint8_t addr = TCA9545A_DEFAULT_I2C_ADDR);
 
     /**
      * Sets the active bus on the TCA9545A
