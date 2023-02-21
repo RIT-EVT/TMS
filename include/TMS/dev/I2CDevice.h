@@ -5,6 +5,7 @@
 #include <EVT/io/I2C.hpp>
 
 namespace IO = EVT::core::IO;
+namespace I2CDevice {
 
 class I2CDevice {
 public:
@@ -13,7 +14,7 @@ public:
      *
      * @param addr Address of the device for debug purposes
      */
-    I2CDevice(uint8_t addr) : addr(addr) {};
+    I2CDevice(uint8_t addr) : addr(addr){};
 
     /**
      * Performs an action utilizing I2C
@@ -25,8 +26,11 @@ public:
     uint8_t getAddr() {
         return addr;
     }
+
 private:
     uint8_t addr;
 };
+
+}
 
 #endif//TMS_I2CDEVICE_H
