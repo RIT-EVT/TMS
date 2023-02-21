@@ -30,8 +30,9 @@ public:
 
     /**
      * Sets the active bus on the TCA9545A
-     * @param bus[in] The bus to set active
-     * @param toggled[in] Whether to toggle the bus or not
+     *
+     * @param[in] bus The bus to set active
+     * @param[in] toggled Whether to toggle the bus or not
      * @return Result of the I2C write operation
      */
     IO::I2C::I2CStatus setBus(uint8_t bus, bool toggled);
@@ -43,16 +44,17 @@ private:
 
     /**
      * Writes a value to a register on the TCA9545A
-     * @param reg[in] The register to write to
-     * @param val[in] The value to write to the register
+     *
+     * @param[in] reg The register to write to
+     * @param[in] val The value to write to the register
      * @return Result of the I2C write operation
      */
     IO::I2C::I2CStatus writeRegister(uint8_t reg, uint8_t val);
 
     /**
      * Reads a value from a register on the TCA9545A
-     * @param reg[in] The register to read from
-     * @param val[out] The value read from the register
+     * @param[in] reg The register to read from
+     * @param[out] val The value read from the register
      * @return Result of the I2C read operation
      */
     IO::I2C::I2CStatus readRegister(uint8_t reg, uint8_t* val);
