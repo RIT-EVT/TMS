@@ -23,10 +23,10 @@ IO::I2C::I2CStatus TCA9545A::setBus(uint8_t bus, bool toggled) {
 }
 
 IO::I2C::I2CStatus TCA9545A::writeRegister(uint8_t reg, uint8_t val) {
-    return this->i2c.writeReg(TCA9545A_I2C_ADDR, reg, val);
+    return i2c.writeReg(TCA9545A_I2C_ADDR, reg, val);
 }
 
 IO::I2C::I2CStatus TCA9545A::readRegister(uint8_t reg, uint8_t* val) {
-    return this->i2c.readReg(TCA9545A_I2C_ADDR, reg, val);
+    return i2c.readReg(TCA9545A_I2C_ADDR, reg, val);
 }
 } // namespace TCA9545A
