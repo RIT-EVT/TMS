@@ -51,8 +51,8 @@ public:
 
 private:
     static constexpr uint8_t I2C_MUX_BUS_SIZE = 4;
+    I2CDevice* busDevices[128][I2C_MUX_BUS_SIZE];
     IO::I2C& i2c;
-    I2CDevice::I2CDevice** busDevices[I2C_MUX_BUS_SIZE];
     uint8_t numDevices[4];
     uint8_t slaveAddress;
 

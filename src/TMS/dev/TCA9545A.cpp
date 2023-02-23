@@ -35,9 +35,8 @@ void TCA9545A::pollDevices() {
         }
 
         for (int j = 0; j < numDevices[i]; j++) {
-            (*busDevices[i] + j)->action();
+            busDevices[i][j]->action();
         }
     }
 }
-
 } // namespace TCA9545A
