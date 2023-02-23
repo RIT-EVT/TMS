@@ -72,6 +72,7 @@ private:
      * @return Result of the I2C read operation
      */
     IO::I2C::I2CStatus readRegister(uint8_t reg, uint8_t* val);
+
 };
 
 }
