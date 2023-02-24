@@ -1,6 +1,9 @@
-#include <EVT/io/I2C.hpp>
 #ifndef TMS_TMP117_HPP
 #define TMS_TMP117_HPP
+
+#include <EVT/io/I2C.hpp>
+
+#define TEMPREG 0x00
 
 namespace IO = EVT::core::IO;
 
@@ -15,7 +18,7 @@ public:
     uint16_t readTemp();
 
 private:
-    constexpr static uint8_t tempReg = 0x00;
+    uint8_t tempReg;
     uint8_t deviceID;
     IO::I2C& i2c;
     uint8_t regLength = 1;

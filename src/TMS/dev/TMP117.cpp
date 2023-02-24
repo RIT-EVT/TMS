@@ -7,14 +7,16 @@
 
 namespace TMS {
 
-TMP117::TMP117(IO::I2C& i2c, uint8_t deviceID): deviceID(deviceID), i2c(i2c) { }
+TMP117::TMP117(IO::I2C& i2c, uint8_t deviceID): deviceID(deviceID), i2c(i2c) {
+    tempReg = TEMPREG;
+}
 
 uint16_t TMP117::readTemp() {
     uint16_t input;
     uint8_t tempBytes[2];
     uint16_t byte1;
 
-    i2c.readReg(deviceID, tempReg, &regLength, tempBytes, valueLength);
+    i2c.readReg(deviceID, &tempReg, regLength, tempBytes, valueLength);
 
     byte1 = tempBytes[0];
     byte1<<=8;
