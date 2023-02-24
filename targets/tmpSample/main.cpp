@@ -1,9 +1,11 @@
-//
-// Created by Ishan on 1/30/2023.
-//
-#include "EVT/io/i2c.hpp"
-#include "EVT/io/UART.hpp"
-#include "TMS/dev/TMP117.hpp"
+/**
+ * TMP117 sample
+ * https://www.ti.com/lit/ds/symlink/tmp117.pdf?ts=1677131522164
+ */
+
+#include <EVT/io/i2c.hpp>
+#include <EVT/io/UART.hpp>
+#include <TMS/dev/TMP117.hpp>
 #include <EVT/manager.hpp>
 #include <EVT/io/pin.hpp>
 
