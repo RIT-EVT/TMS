@@ -61,6 +61,8 @@ private:
      */
     uint32_t thermTemps[NUM_THERMISTORS];
 
+    uint32_t thermVoltages[NUM_THERMISTORS];
+
     /**
      * Hardcoded conversion function from voltage to temperature in Celsius
      *
@@ -94,7 +96,7 @@ private:
      * Have to know the size of the object dictionary for initialization
      * process.
      */
-    static constexpr uint16_t OBJECT_DICTIONARY_SIZE = 27;
+    static constexpr uint16_t OBJECT_DICTIONARY_SIZE = 47;
 
     CO_OBJ_T objectDictionary[OBJECT_DICTIONARY_SIZE + 1] = {
         // Sync ID, defaults to 0x80
@@ -156,7 +158,7 @@ private:
         {
             .Key = CO_KEY(0x1800, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
             .Type = nullptr,
-            .Data = (uintptr_t) CO_COBID_TPDO_DEFAULT(0),
+            .Data = (uintptr_t) CO_COBID_TPDO_DEFAULT(0) + NODE_ID,
         },
         {
             .Key = CO_KEY(0x1800, 2, CO_UNSIGNED8 | CO_OBJ_D__R_),
@@ -188,7 +190,7 @@ private:
         {
             .Key = CO_KEY(0x1801, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
             .Type = nullptr,
-            .Data = (uintptr_t) CO_COBID_TPDO_DEFAULT(1),
+            .Data = (uintptr_t) CO_COBID_TPDO_DEFAULT(1) + NODE_ID,
         },
         {
             .Key = CO_KEY(0x1801, 2, CO_UNSIGNED8 | CO_OBJ_D__R_),
@@ -206,7 +208,71 @@ private:
             .Data = (uintptr_t) 2000,
         },
 
-        // TPDO0 mapping, determines the PDO messages to send when TPDO1 is triggered
+        // TPDO2 settings
+        // 0: The TPDO number, default 0
+        // 1: The COB-ID used by TPDO1, provided as a function of the TPDO number
+        // 2: How the TPO is triggered, default to manual triggering
+        // 3: Inhibit time, defaults to 0
+        // 5: Timer trigger time in 1ms units, 0 will disable the timer based triggering
+        {
+            .Key = CO_KEY(0x1802, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 2,
+        },
+        {
+            .Key = CO_KEY(0x1802, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) CO_COBID_TPDO_DEFAULT(2) + NODE_ID,
+        },
+        {
+            .Key = CO_KEY(0x1802, 2, CO_UNSIGNED8 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 0xFE,
+        },
+        {
+            .Key = CO_KEY(0x1802, 3, CO_UNSIGNED16 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 0,
+        },
+        {
+            .Key = CO_KEY(0x1802, 5, CO_UNSIGNED16 | CO_OBJ_D__R_),
+            .Type = CO_TEVENT,
+            .Data = (uintptr_t) 2000,
+        },
+
+        // TPDO3 settings
+        // 0: The TPDO number, default 0
+        // 1: The COB-ID used by TPDO1, provided as a function of the TPDO number
+        // 2: How the TPO is triggered, default to manual triggering
+        // 3: Inhibit time, defaults to 0
+        // 5: Timer trigger time in 1ms units, 0 will disable the timer based triggering
+        {
+            .Key = CO_KEY(0x1803, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 3,
+        },
+        {
+            .Key = CO_KEY(0x1803, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) CO_COBID_TPDO_DEFAULT(3) + NODE_ID,
+        },
+        {
+            .Key = CO_KEY(0x1803, 2, CO_UNSIGNED8 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 0xFE,
+        },
+        {
+            .Key = CO_KEY(0x1803, 3, CO_UNSIGNED16 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 0,
+        },
+        {
+            .Key = CO_KEY(0x1803, 5, CO_UNSIGNED16 | CO_OBJ_D__R_),
+            .Type = CO_TEVENT,
+            .Data = (uintptr_t) 2000,
+        },
+
+        // TPDO0 mapping, determines the PDO messages to send when TPDO0 is triggered
         // 0: The number of PDO messages associated with the TPDO
         // 1: Link to the first PDO message
         // n: Link to the nth PDO message
@@ -246,27 +312,96 @@ private:
             .Data = CO_LINK(0x2100, 3, 8),
         },
 
-        // User defined data, this will be where we put elements that can be
-        // accessed via SDO and depending on configuration PDO
+        // TPDO2 mapping, determines the PDO messages to send when TPDO2 is triggered
+        // 0: The number of PDO messages associated with the TPDO
+        // 1: Link to the first PDO message
+        // n: Link to the nth PDO message
         {
-            .Key = CO_KEY(0x2100, 0, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Key = CO_KEY(0x1A02, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
             .Type = nullptr,
-            .Data = (uintptr_t) &thermTemps[0],
+            .Data = (uintptr_t) 2,
         },
         {
-            .Key = CO_KEY(0x2100, 1, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Key = CO_KEY(0x1A02, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = CO_LINK(0x2100, 4, 8),
+        },
+        {
+            .Key = CO_KEY(0x1A02, 2, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = CO_LINK(0x2100, 5, 8),
+        },
+
+        // TPDO3 mapping, determines the PDO messages to send when TPDO3 is triggered
+        // 0: The number of PDO messages associated with the TPDO
+        // 1: Link to the first PDO message
+        // n: Link to the nth PDO message
+        {
+            .Key = CO_KEY(0x1A03, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 2,
+        },
+        {
+            .Key = CO_KEY(0x1A03, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = CO_LINK(0x2100, 6, 8),
+        },
+        {
+            .Key = CO_KEY(0x1A03, 2, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = CO_LINK(0x2100, 7, 8),
+        },
+
+        // User defined data, this will be where we put elements that can be
+        // accessed via SDO and depending on configuration PDO
+
+        /**
+        * The discrepency with the case and voltage index is due to an apparent miswiring in the TMS itself
+        * The conversion to read temperatures in the correct order is as follows:
+        * [Temp 1] is actually from [Temp 2]
+        * [Temp 2] is actually from [Temp 3]
+        * [Temp 3] is actually from [Temp 4]
+        * [Temp 4] is actually from [Temp 1]
+        */
+        {
+            .Key = CO_KEY(0x2100, 0, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermTemps[1],
         },
         {
-            .Key = CO_KEY(0x2100, 2, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Key = CO_KEY(0x2100, 1, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermTemps[2],
         },
         {
-            .Key = CO_KEY(0x2100, 3, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Key = CO_KEY(0x2100, 2, CO_UNSIGNED32 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &thermTemps[3],
+        },
+        {
+            .Key = CO_KEY(0x2100, 3, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermTemps[0],
+        },
+        {
+            .Key = CO_KEY(0x2100, 4, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermVoltages[1],
+        },
+        {
+            .Key = CO_KEY(0x2100, 5, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermVoltages[2],
+        },
+        {
+            .Key = CO_KEY(0x2100, 6, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermVoltages[3],
+        },
+        {
+            .Key = CO_KEY(0x2100, 7, CO_UNSIGNED32 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &thermVoltages[0],
         },
 
         // End of dictionary marker
