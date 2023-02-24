@@ -43,6 +43,7 @@ private:
     /**16-bit temp value returned from readTemp() in degrees centi celsius*/
     uint16_t temp;
 };
+
 }
 
 #endif//TMS_TMP117_HPP
