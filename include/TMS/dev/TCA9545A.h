@@ -67,6 +67,7 @@ private:
 
     /**
      * Reads a value from a register on the TCA9545A
+     *
      * @param[in] reg The register to read from
      * @param[out] val The value read from the register
      * @return Result of the I2C read operation

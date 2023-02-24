@@ -7,6 +7,9 @@
 namespace IO = EVT::core::IO;
 namespace I2CDevice {
 
+/**
+ * Interface for devices using I2C to call a common function
+ */
 class I2CDevice {
 public:
     /**
