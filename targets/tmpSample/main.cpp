@@ -16,9 +16,7 @@ int main() {
 
     while(1){
         uart.printf("temp values: ");
-        uart.printf("%#d\n\r", tmp.readTemp());
-
-
+        uart.printf("%d\n\r", tmp.readTemp());
     }
 
 }
