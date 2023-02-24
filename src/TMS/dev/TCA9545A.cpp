@@ -2,7 +2,7 @@
 
 namespace TCA9545A {
 
-TCA9545A::TCA9545A(IO::I2C& i2c, uint8_t addr) : i2c(i2c), slaveAddress(addr) {};
+TCA9545A::TCA9545A(IO::I2C& i2c, uint8_t addr) : i2c(i2c), slaveAddress(addr){};
 
 IO::I2C::I2CStatus TCA9545A::setBus(uint8_t bus, bool toggled) {
     uint8_t val = static_cast<uint8_t>(toggled);
@@ -39,4 +39,4 @@ void TCA9545A::pollDevices() {
         }
     }
 }
-} // namespace TCA9545A
+}// namespace TCA9545A
