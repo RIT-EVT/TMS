@@ -10,7 +10,7 @@ namespace IO = EVT::core::IO;
 namespace TMS {
 
 /**
- * Temp sensor for TMS on DEV1
+ * Temp sensor for TMS
  */
 class TMP117 {
 public:
@@ -25,7 +25,7 @@ public:
     /**
      * Reads the temperature
      *
-     * @return
+     * @return temperature reading
      */
     uint16_t readTemp();
 
