@@ -1,6 +1,5 @@
 /**
  * TMP117 sample
- * https://www.ti.com/lit/ds/symlink/tmp117.pdf?ts=1677131522164
  */
 
 #include <EVT/io/i2c.hpp>

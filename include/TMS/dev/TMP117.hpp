@@ -11,6 +11,7 @@ namespace TMS {
 
 /**
  * Temp sensor for TMS
+ * https://www.ti.com/lit/ds/symlink/tmp117.pdf
  */
 class TMP117 {
 public:
