@@ -9,10 +9,15 @@ namespace IO = EVT::core::IO;
 
 namespace TMS {
 
-/**class for TMP117 driver*/
+/**
+ * Temp sensor for TMS on DEV1
+ */
 class TMP117 {
 public:
-    /**temp sensor*/
+    /**Temp sensor constructor
+     * @param i2c used to read temperature
+     * @param deviceID - device address
+     * */
     TMP117(IO::I2C& i2c, uint8_t deviceID);
     /**reads the temperature*/
     uint16_t readTemp();
