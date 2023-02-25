@@ -3,13 +3,13 @@
  */
 #include <EVT/io/GPIO.hpp>
 #include <EVT/io/PWM.hpp>
-#include <EVT/io/manager.hpp>
+#include <EVT/manager.hpp>
 #include <TMS/dev/RadiatorFan.hpp>
 
 namespace IO = EVT::core::IO;
 
 int main() {
-    IO::init();
+    EVT::core::platform::init();
 
     char buf[100];
 

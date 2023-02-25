@@ -3,7 +3,7 @@
  */
 #include <EVT/io/GPIO.hpp>
 #include <EVT/io/PWM.hpp>
-#include <EVT/io/manager.hpp>
+#include <EVT/manager.hpp>
 #include <EVT/io/pin.hpp>
 #include <EVT/utils/time.hpp>
 #include <TMS/dev/HeatPump.hpp>
@@ -13,7 +13,7 @@ namespace IO = EVT::core::IO;
 namespace time = EVT::core::time;
 
 int main() {
-    IO::init();
+    EVT::core::platform::init();
 
     char buf[100];
 
