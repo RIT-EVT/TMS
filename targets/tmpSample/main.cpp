@@ -2,7 +2,7 @@
  * TMP117 sample
  */
 
-#include <EVT/io/i2c.hpp>
+#include <EVT/io/I2C.hpp>
 #include <EVT/io/UART.hpp>
 #include <TMS/dev/TMP117.hpp>
 #include <EVT/manager.hpp>
