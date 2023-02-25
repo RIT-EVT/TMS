@@ -3,8 +3,8 @@
 
 #include "EVT/io/PWM.hpp"
 #include <EVT/io/GPIO.hpp>
-#include <type_traits>
 #include <EVT/utils/time.hpp>
+#include <type_traits>
 #define MAX_SPEED 100
 #define PERIOD 30000
 
@@ -31,7 +31,6 @@ public:
      * @param speed The desired speed of the fan, corresponding to the duty cycle
      */
     void setSpeed(uint16_t speed);
-
 
 private:
     /** PWM instance to control the fan */
