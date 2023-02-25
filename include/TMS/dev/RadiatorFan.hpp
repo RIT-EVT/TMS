@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <EVT/utils/time.hpp>
 #define MAX_SPEED 100
+#define PERIOD 30000
 
 namespace IO = EVT::core::IO;
 namespace time = EVT::core::time;
@@ -21,7 +22,6 @@ public:
      * Constructor for the radiator fan to operate with the given GPIO
      *
      * @param pwm PWM instance to control the fan
-     * @pre gpio's direction is set to OUTPUT
      */
     RadiatorFan(IO::PWM& pwm);
 
@@ -32,10 +32,6 @@ public:
      */
     void setSpeed(uint16_t speed);
 
-    /**
-     * Stop the pump
-     */
-    void stop();
 
 private:
     /** PWM instance to control the fan */
