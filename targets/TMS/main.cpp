@@ -3,9 +3,9 @@
  */
 #include <EVT/io/CANopen.hpp>
 #include <EVT/io/UART.hpp>
-#include <EVT/manager.hpp>
 #include <EVT/io/pin.hpp>
 #include <EVT/io/types/CANMessage.hpp>
+#include <EVT/manager.hpp>
 #include <EVT/utils/log.hpp>
 #include <EVT/utils/types/FixedQueue.hpp>
 

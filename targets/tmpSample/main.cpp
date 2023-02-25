@@ -4,9 +4,9 @@
 
 #include <EVT/io/I2C.hpp>
 #include <EVT/io/UART.hpp>
-#include <TMS/dev/TMP117.hpp>
-#include <EVT/manager.hpp>
 #include <EVT/io/pin.hpp>
+#include <EVT/manager.hpp>
+#include <TMS/dev/TMP117.hpp>
 
 int main() {
     EVT::core::platform::init();
@@ -15,9 +15,8 @@ int main() {
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
     TMS::TMP117 tmp = TMS::TMP117(i2c, 0x48);
 
-    while(1){
+    while (1) {
         uart.printf("temp values: ");
         uart.printf("%d\n\r", tmp.readTemp());
     }
-
 }

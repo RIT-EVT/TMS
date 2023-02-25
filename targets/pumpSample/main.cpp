@@ -3,8 +3,8 @@
  */
 #include <EVT/io/GPIO.hpp>
 #include <EVT/io/PWM.hpp>
-#include <EVT/manager.hpp>
 #include <EVT/io/pin.hpp>
+#include <EVT/manager.hpp>
 #include <EVT/utils/time.hpp>
 #include <TMS/dev/HeatPump.hpp>
 #include <cstdlib>
