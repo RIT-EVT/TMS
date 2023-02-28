@@ -1,8 +1,8 @@
 #ifndef TMS_INCLUDE_TMS_DEV_RADIATORFAN_HPP
 #define TMS_INCLUDE_TMS_DEV_RADIATORFAN_HPP
 
-#include <EVT/io/PWM.hpp>
 #include <EVT/io/GPIO.hpp>
+#include <EVT/io/PWM.hpp>
 #include <EVT/utils/time.hpp>
 #include <type_traits>
 #define MAX_SPEED 100
