@@ -3,7 +3,7 @@
  */
 #include <EVT/io/ADC.hpp>
 #include <EVT/io/GPIO.hpp>
-#include <EVT/io/manager.hpp>
+#include <EVT/manager.hpp>
 #include <EVT/utils/time.hpp>
 
 namespace IO = EVT::core::IO;
@@ -25,7 +25,7 @@ void switchMux(IO::GPIO& muxs3, IO::GPIO& muxs2, IO::GPIO& muxs1, uint8_t s3, ui
 }
 
 int main() {
-    IO::init();
+    EVT::core::platform::init();
 
     IO::ADC& adc = IO::getADC<IO::Pin::PA_4>();
     IO::UART& uart = IO::getUART<IO::Pin::PB_10, IO::Pin::PB_11>(115200);
