@@ -1,27 +1,33 @@
+
 /**
- * Tests the RadiatorFan class by allowing the user to turn the fan on and off using UART.
+ * This example shows off a basic use of the Fan with a PWM signal. You will need to use a logic
+ * analyzer to see the generated square wave.
  */
-#include <EVT/io/GPIO.hpp>
 #include <EVT/io/PWM.hpp>
 #include <EVT/manager.hpp>
 #include <TMS/dev/RadiatorFan.hpp>
 
 namespace IO = EVT::core::IO;
+namespace time = EVT::core::time;
 
 int main() {
+    // Initialize system
     EVT::core::platform::init();
 
-    char buf[100];
+    IO::PWM& pwm = IO::getPWM<IO::Pin::PC_0>();
 
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
-    TMS::RadiatorFan fan = TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_0>());
+    TMS::RadiatorFan fan = TMS::RadiatorFan(pwm);
 
-    while (1) {
-        uart.printf("Enter 0 to turn the fan off or 1 to turn it on: ");
-        uart.gets(buf, 100);
-        uart.printf("\n\r");
+    // Simple code to test the fan at different speeds
 
-        bool on = strtol(buf, nullptr, 10);
-        fan.powerOn(on);
-    }
+    fan.setSpeed(30);
+    EVT::core::time::wait(5000);
+    fan.setSpeed(0);
+    EVT::core::time::wait(5000);
+    fan.setSpeed(20);
+    EVT::core::time::wait(5000);
+    fan.setSpeed(0);
+    EVT::core::time::wait(5000);
+    fan.setSpeed(10);
 }

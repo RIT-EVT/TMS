@@ -2,9 +2,14 @@
 #define TMS_INCLUDE_TMS_DEV_RADIATORFAN_HPP
 
 #include <EVT/io/GPIO.hpp>
+#include <EVT/io/PWM.hpp>
+#include <EVT/utils/time.hpp>
 #include <type_traits>
+#define MAX_SPEED 100
+#define PERIOD 30000
 
 namespace IO = EVT::core::IO;
+namespace time = EVT::core::time;
 
 namespace TMS {
 
@@ -16,20 +21,20 @@ public:
     /**
      * Constructor for the radiator fan to operate with the given GPIO
      *
-     * @param gpio GPIO to be used to control the fan
-     * @pre gpio's direction is set to OUTPUT
+     * @param pwm PWM instance to control the fan
      */
-    RadiatorFan(IO::GPIO& gpio);
+    RadiatorFan(IO::PWM& pwm);
 
     /**
-     * Turns the fan on or off
+     * Sets the speed based on the duty cycle of the PWM
      *
-     * @param on Whether the fan should be turned on or off
+     * @param speed The desired speed of the fan, corresponding to the duty cycle
      */
-    void powerOn(bool on);
+    void setSpeed(uint16_t speed);
 
 private:
-    IO::GPIO& gpio;
+    /** PWM instance to control the fan */
+    IO::PWM& pwm;
 };
 
 }// namespace TMS

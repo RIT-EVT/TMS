@@ -125,7 +125,7 @@ int main() {
     IO::PWM& pwm = IO::getPWM<IO::Pin::PB_14>();
     auto pump = TMS::HeatPump(pwm);
     TMS::RadiatorFan fans[] = {
-        TMS::RadiatorFan(IO::getGPIO<IO::Pin::PC_14>()),
+        TMS::RadiatorFan(IO::getPWM<IO::Pin::PC_0>()),
     };
 
     // Reserved memory for CANopen stack usage
@@ -185,7 +185,7 @@ int main() {
             // Turn the pump and fans off
             pump.stop();
             for (TMS::RadiatorFan fan : fans) {
-                fan.powerOn(0);
+                fan.setSpeed(0);
             }
             break;
         // Operational Mode
@@ -198,7 +198,7 @@ int main() {
             // Activate the pump and fans -- will be replaced with more advanced cooling logic later
             pump.setSpeed(60);
             for (TMS::RadiatorFan fan : fans) {
-                fan.powerOn(1);
+                fan.setSpeed(30);
             }
             break;
         default:
