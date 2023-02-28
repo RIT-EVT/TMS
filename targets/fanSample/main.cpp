@@ -4,9 +4,7 @@
  * analyzer to see the generated square wave.
  */
 #include <EVT/io/PWM.hpp>
-#include <EVT/io/manager.hpp>
-#include <EVT/utils/time.hpp>
-
+#include <EVT/manager.hpp>
 #include <TMS/dev/RadiatorFan.hpp>
 
 namespace IO = EVT::core::IO;
@@ -14,7 +12,7 @@ namespace time = EVT::core::time;
 
 int main() {
     // Initialize system
-    IO::init();
+    EVT::core::platform::init();
 
     IO::PWM& pwm = IO::getPWM<IO::Pin::PC_0>();
 
