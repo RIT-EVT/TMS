@@ -2,18 +2,18 @@
 #define TMS_INCLUDE_TMS_DEV_HEATPUMP_HPP
 
 #include <EVT/io/PWM.hpp>
+#include <EVT/utils/time.hpp>
 
-// Maximum period is 200000 (2 s), so this value is set as close to the max as can be safe, which
-// allows the minimum of the init speed to be as low as possible
-#define PERIOD 19500
-// Value decided by the duty cycle and period to ensure the pump awakens with the appropriate high
-// signal of >= 3000 (3 ms)
-#define MIN_INIT_SPEED 7// d = t / P = 3500 / 19500 * 100 = 17.9; s = (d - 13) / .72 = 6.87 ~ 7
+// We want to maximize frequency, the max frequency can be 950 HZ.
+// NOTE: Datasheet says 1000 Hz but I have put it down 50 Hz for some errors that can occur will running at max
+// To achieve this period must be T = 1/950 seconds which is (~ 1053 microseconds or 1.053 ms)
+#define PERIOD 1053
 #define MAX_SPEED 100
 #define STOP_DUTY_CYCLE 10
 #define SPEED_TO_DUTY_CYCLE(speed) ((speed * 72 / 100) + 13)//d = (85 - 13)(s / 100) + 13
 
 namespace IO = EVT::core::IO;
+namespace time = EVT::core::time;
 
 namespace TMS {
 
@@ -45,13 +45,6 @@ public:
 private:
     /** PWM instance to control the pump */
     IO::PWM& pwm;
-    /**
-     * Whether or not the pump is initialized
-     *
-     * Necessary because the speed of the pump needs to be set differently depending on whether it
-     * has been initialized
-     */
-    bool isInitialized;
 };
 
 }// namespace TMS

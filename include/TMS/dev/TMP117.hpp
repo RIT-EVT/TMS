@@ -45,6 +45,6 @@ private:
     uint16_t temp;
 };
 
-}
+}// namespace TMS
 
 #endif//TMS_TMP117_HPP
