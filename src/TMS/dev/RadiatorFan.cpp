@@ -13,4 +13,5 @@ RadiatorFan::RadiatorFan(IO::PWM& pwm): pwm(pwm) {
         }
         pwm.setDutyCycle(speed);
     }
+
     }// namespace TMS
