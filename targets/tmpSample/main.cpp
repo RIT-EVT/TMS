@@ -1,5 +1,5 @@
 /**
- * TMP117 sample
+ * tests measuring temperature with TMP117
  */
 
 #include <EVT/io/I2C.hpp>
