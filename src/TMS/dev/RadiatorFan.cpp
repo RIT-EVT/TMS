@@ -3,7 +3,7 @@
 namespace TMS {
 
 RadiatorFan::RadiatorFan(IO::PWM& pwm): pwm(pwm) {
-    this->pwm.setDutyCycle(0);// setting the duty cycle to 100% to initially start the pump
+    this->pwm.setDutyCycle(0);
     this->pwm.setPeriod(PERIOD);
 }
 
