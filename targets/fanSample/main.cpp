@@ -32,13 +32,4 @@ int main() {
     fan.setSpeed(0);
     EVT::core::time::wait(5000);
     fan.setSpeed(10);
-
 }
-
-
-
-
-
-
-
-
