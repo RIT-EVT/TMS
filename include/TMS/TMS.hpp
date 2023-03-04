@@ -5,6 +5,7 @@
 #include <EVT/dev/Thermistor.hpp>
 #include <EVT/io/GPIO.hpp>
 #include <EVT/utils/log.hpp>
+#include "TMS/dev/TCA9545A.h"
 
 #define NUM_THERMISTORS 4
 
@@ -21,7 +22,7 @@ public:
      *
      * @param thermADCs Array of pointers to ADCs used to create thermistor instances
      */
-    TMS(IO::GPIO& m1, IO::GPIO& m2, EVT::core::IO::ADC& thermADC);
+    TMS(IO::GPIO& m1, IO::GPIO& m2, EVT::core::IO::ADC& thermADC, TCA9545A tca9545A);
 
     /**
      * The node ID used to identify the device on the CAN network.
@@ -55,6 +56,11 @@ private:
 
     IO::GPIO& mux1;
     IO::GPIO& mux2;
+
+    /**
+     * TCA9545A instance
+     */
+     TCA9545A& tca9545A;
 
     /**
      * Array to store the thermistor values

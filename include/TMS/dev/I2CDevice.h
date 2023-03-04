@@ -5,7 +5,7 @@
 #include <EVT/io/I2C.hpp>
 
 namespace IO = EVT::core::IO;
-namespace I2CDevice {
+namespace TMS {
 
 /**
  * Interface for devices using I2C to call a common function

@@ -2,29 +2,12 @@
 
 namespace TMS {
 
-TMS::TMS(IO::GPIO& m1, IO::GPIO& m2, IO::ADC& thermADC) : thermistor(DEV::Thermistor(thermADC, conversion)),
-                                                          mux1(m1), mux2(m2) {}
+TMS::TMS(IO::GPIO& m1, IO::GPIO& m2, IO::ADC& thermADC, TCA9545A tca9545A) : thermistor(DEV::Thermistor(thermADC, conversion)),
+                                                          mux1(m1), mux2(m2), tca9545A(tca9545A){}
 
 void TMS::updateTemps() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Updating Temps");
-    for (uint8_t i = 0; i < NUM_THERMISTORS; i++) {
-        if (i & 1U) {
-            mux1.writePin(IO::GPIO::State::HIGH);
-        } else {
-            mux1.writePin(IO::GPIO::State::LOW);
-        }
-        if (i & 2U) {
-            mux2.writePin(IO::GPIO::State::HIGH);
-        } else {
-            mux2.writePin(IO::GPIO::State::LOW);
-        }
-        thermTemps[i] = thermistor.getTempCelcius();
-
-        //SUBJECT TO CHANGE
-        //ADC values are multiplied by 3300 to scale to the 3.3V
-        //the value is then divided by the 4095 possible ADC values
-        thermVoltages[i] = (thermistor.getRawADC()) * 3300 / 4095;
-    }
+    tca9545A.pollDevices();
 }
 
 CO_OBJ_T* TMS::getObjectDictionary() {

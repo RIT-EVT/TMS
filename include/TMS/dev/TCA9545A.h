@@ -7,7 +7,7 @@
 
 namespace IO = EVT::core::IO;
 
-namespace TCA9545A {
+namespace TMS {
 
 constexpr uint8_t TCA9545A_DEFAULT_I2C_ADDR = 0x73;
 
@@ -25,15 +25,17 @@ enum TCA9545A_BUS {
  * TCA9545A I2C Multiplexer Driver
  * https://www.ti.com/lit/ds/symlink/tca9545a.pdf
  */
-class TCA9545A : I2CDevice::I2CDevice {
+class TCA9545A {
 public:
 
     /**
      * Constructor for the TCA9545A driver
      *
      * @param i2c I2C device for communicating with TCA
+     * @param addr address of I2C device
+     * @param buses array of buses containing I2CDevices
      */
-    TCA9545A(IO::I2C& i2c, uint8_t addr = TCA9545A_DEFAULT_I2C_ADDR);
+    TCA9545A(IO::I2C& i2c, uint8_t addr = TCA9545A_DEFAULT_I2C_ADDR, I2CDevice** buses[4]= nullptr);
 
     /**
      * Sets the active bus on the TCA9545A
@@ -51,7 +53,7 @@ public:
 
 private:
     static constexpr uint8_t I2C_MUX_BUS_SIZE = 4;
-    I2CDevice* busDevices[128][I2C_MUX_BUS_SIZE];
+    I2CDevice** busDevices[I2C_MUX_BUS_SIZE];
     IO::I2C& i2c;
     uint8_t numDevices[4];
     uint8_t slaveAddress;
