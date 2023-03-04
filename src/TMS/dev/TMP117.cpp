@@ -25,4 +25,6 @@ uint16_t TMP117::readTemp() {
     return temp;
 }
 
+TMP117::TMP117() {}
+
 }
