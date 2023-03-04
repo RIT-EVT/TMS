@@ -9,13 +9,12 @@
 #include <EVT/utils/log.hpp>
 #include <EVT/utils/types/FixedQueue.hpp>
 
+#include "TMS/dev/I2CDevice.h"
 #include "TMS/dev/TMP117I2CDevice.hpp"
 #include <TMS/TMS.hpp>
 #include <TMS/dev/HeatPump.hpp>
 #include <TMS/dev/RadiatorFan.hpp>
 #include <TMS/dev/TMP117.hpp>
-#include "TMS/dev/I2CDevice.h"
-#include "TMS/dev/TMP117I2CDevice.hpp"
 
 namespace IO = EVT::core::IO;
 namespace DEV = EVT::core::DEV;
@@ -152,8 +151,8 @@ int main() {
     for (uint8_t i = 0; i < 6; i++) {
         tmpDevices[i] = TMS::TMP117(&i2c, 0x48 + i % 4);
         devices[i] = TMS::TMP117I2CDevice(&tmpDevices[i], &tempValues[i]);
-        if(i<4){
-            bus0[i]=&devices[i];
+        if (i < 4) {
+            bus0[i] = &devices[i];
         } else if (i < 8) {
             bus1[i] = &devices[i];
         }
