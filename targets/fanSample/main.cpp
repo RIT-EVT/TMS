@@ -23,6 +23,8 @@ int main() {
 
     // Simple code to test the fan at different speeds
 
+
+
     fan.setSpeed(30);
     EVT::core::time::wait(5000);
     fan.setSpeed(0);

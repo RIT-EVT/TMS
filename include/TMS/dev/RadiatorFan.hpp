@@ -35,6 +35,8 @@ public:
 private:
     /** PWM instance to control the fan */
     IO::PWM& pwm;
+    /** GPIO instance to turn on the fan */
+    IO::GPIO& gpio = IO::getGPIO<IO::Pin::PC_1>();
 };
 
 }// namespace TMS
