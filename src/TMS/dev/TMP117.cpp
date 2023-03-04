@@ -27,5 +27,4 @@ uint16_t TMP117::readTemp() {
 
 TMP117::TMP117() {}
 
-}
 }// namespace TMS
