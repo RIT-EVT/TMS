@@ -13,14 +13,14 @@ uint16_t TMP117::readTemp() {
 
     i2c->readReg(deviceID, &tempReg, regLength, tempBytes, valueLength);
 
-    input = ((uint16_t) tempBytes[0]) << 8|tempBytes[1];
+    input = ((uint16_t) tempBytes[0]) << 8 | tempBytes[1];
 
     /**
      * degrees centi celsius
      * multiplied by 78125 because the sensor output increases by .0078125 degrees celsius - brings it to fixed point within 64 bits
      * divided by 100000 so it fits in a 16 bit int
      */
-    temp = ((uint64_t)input)*78125/100000;
+    temp = ((uint64_t) input) * 78125 / 100000;
 
     return temp;
 }
@@ -28,3 +28,4 @@ uint16_t TMP117::readTemp() {
 TMP117::TMP117() {}
 
 }
+}// namespace TMS
