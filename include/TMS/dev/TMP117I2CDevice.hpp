@@ -3,6 +3,7 @@
 
 #include <TMS/dev/I2CDevice.h>
 #include <EVT/io/I2C.hpp>
+#include <TMS/dev/I2CDevice.h>
 #include <TMS/dev/TMP117.hpp>
 
 namespace TMS {

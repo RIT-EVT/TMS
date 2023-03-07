@@ -60,7 +60,7 @@ private:
     /**
      * TCA9545A instance
      */
-     TCA9545A& tca9545A;
+    TCA9545A& tca9545A;
 
     /**
      * Array to store the thermistor values
