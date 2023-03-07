@@ -14,7 +14,7 @@
 #include <TMS/dev/HeatPump.hpp>
 #include <TMS/dev/RadiatorFan.hpp>
 #include <TMS/dev/TMP117.hpp>
-#include "TMS/dev/I2CDevice.h"
+#include <TMS/dev/I2CDevice.h>
 #include "TMS/dev/TMP117I2CDevice.hpp"
 
 namespace IO = EVT::core::IO;

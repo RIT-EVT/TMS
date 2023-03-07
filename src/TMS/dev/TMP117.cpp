@@ -7,6 +7,8 @@ TMP117::TMP117(IO::I2C* i2c, uint8_t deviceID) : deviceID(deviceID), i2c(i2c) {
     tempReg = TEMPREG;
 }
 
+TMP117::TMP117() {}
+
 uint16_t TMP117::readTemp() {
     uint16_t input;
     uint8_t tempBytes[2];
@@ -24,7 +26,4 @@ uint16_t TMP117::readTemp() {
 
     return temp;
 }
-
-TMP117::TMP117() {}
-
 }// namespace TMS

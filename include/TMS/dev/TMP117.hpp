@@ -23,7 +23,7 @@ public:
      * */
     TMP117(IO::I2C* i2c, uint8_t deviceID);
     /**
-     * second constructor to make TMS main work
+     * default constructor for instantiation of uninitialized instances
      */
     TMP117();
 
