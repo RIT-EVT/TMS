@@ -20,4 +20,4 @@ RadiatorFan::RadiatorFan(IO::PWM& pwm, IO::GPIO& gpio): pwm(pwm), gpio(gpio) {
             }
     }
 
-    }// namespace TMS
+}// namespace TMS

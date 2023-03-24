@@ -42,6 +42,8 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/TMS/TMS.cpp
         src/TMS/dev/HeatPump.cpp
         src/TMS/dev/RadiatorFan.cpp
+        src/TMS/dev/TMP117.cpp
+        src/TMS/dev/TCA9545A.cpp
         )
 
 ###############################################################################
@@ -53,7 +55,6 @@ if(NOT TARGET_DEV)
     set(TARGET_DEV "STM32F302x8")
 endif()
 
-
 if(TARGET_DEV STREQUAL "STM32F302x8")
     add_compile_definitions(STM32F302x8)
     add_compile_definitions(STM32F3xx)
@@ -63,6 +64,9 @@ elseif(TARGET_DEV STREQUAL "STM32F334x8")
 else()
     message(FATAL_ERROR "The target device is not supported")
 endif()
+
+# Enable use of HAL Drivers
+add_compile_definitions(USE_HAL_DRIVER)
 
 target_link_libraries(${PROJECT_NAME}
         PUBLIC EVT
