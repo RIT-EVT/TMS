@@ -23,7 +23,7 @@ public:
      *
      * @param pwm PWM instance to control the fan
      */
-    RadiatorFan(IO::PWM& pwm);
+    RadiatorFan(IO::PWM& pwm, IO::GPIO& gpio);
 
     /**
      * Sets the speed based on the duty cycle of the PWM
@@ -36,7 +36,7 @@ private:
     /** PWM instance to control the fan */
     IO::PWM& pwm;
     /** GPIO instance to turn on the fan */
-    IO::GPIO& gpio = IO::getGPIO<IO::Pin::PC_1>();
+    IO::GPIO& gpio;
 };
 
 }// namespace TMS
