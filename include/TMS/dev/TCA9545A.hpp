@@ -1,5 +1,5 @@
-#ifndef TMS_TCA9545A_H
-#define TMS_TCA9545A_H
+#ifndef TMS_TCA9545A_HPP
+#define TMS_TCA9545A_HPP
 
 #include <cstddef>
 #include <EVT/io/I2C.hpp>
@@ -31,8 +31,8 @@ public:
     /**
      * Constructor for the TCA9545A driver
      *
-     * @param[in] i2c I2C device for communicating with TCA
-     * @param[in] addr address of I2C device
+     * @param[in] i2c I2C instance for communicating with TCA
+     * @param[in] addr address of TCA
      * @param[in] buses array of buses containing I2CDevices
      */
     TCA9545A(IO::I2C& i2c, uint8_t addr = TCA9545A_DEFAULT_I2C_ADDR,
@@ -81,4 +81,4 @@ private:
 
 }
 
-#endif//TMS_TCA9545A_H
+#endif//TMS_TCA9545A_HPP

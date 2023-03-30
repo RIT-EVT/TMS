@@ -1,4 +1,4 @@
-#include <TMS/dev/TCA9545A.h>
+#include <TMS/dev/TCA9545A.hpp>
 
 namespace TMS {
 
