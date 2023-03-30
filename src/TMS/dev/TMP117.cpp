@@ -7,7 +7,7 @@ TMP117::TMP117(IO::I2C* i2c, uint8_t deviceID) : deviceID(deviceID), i2c(i2c) {
     tempReg = TEMPREG;
 }
 
-TMP117::TMP117(): deviceID(0), i2c(nullptr) {}
+TMP117::TMP117() : deviceID(0), i2c(nullptr) {}
 
 uint16_t TMP117::readTemp() {
     uint16_t input;

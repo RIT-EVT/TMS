@@ -1,9 +1,9 @@
 #ifndef TMS_TCA9545A_HPP
 #define TMS_TCA9545A_HPP
 
-#include <cstddef>
 #include <EVT/io/I2C.hpp>
 #include <TMS/dev/I2CDevice.h>
+#include <cstddef>
 
 namespace IO = EVT::core::IO;
 
@@ -27,7 +27,6 @@ enum TCA9545A_BUS {
  */
 class TCA9545A {
 public:
-
     /**
      * Constructor for the TCA9545A driver
      *
@@ -75,9 +74,8 @@ private:
      * @return Result of the I2C read operation
      */
     IO::I2C::I2CStatus readRegister(uint8_t reg, uint8_t* val);
-
 };
 
-}
+}// namespace TMS
 
 #endif//TMS_TCA9545A_HPP
