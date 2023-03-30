@@ -9,7 +9,7 @@
 #include <EVT/utils/log.hpp>
 #include <EVT/utils/types/FixedQueue.hpp>
 
-#include "TMS/dev/TMP117I2CDevice.hpp"
+#include <TMS/dev/TMP117I2CDevice.hpp>
 #include <TMS/TMS.hpp>
 #include <TMS/dev/HeatPump.hpp>
 #include <TMS/dev/I2CDevice.h>

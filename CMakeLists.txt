@@ -35,11 +35,11 @@ project(${BOARD_LIB_NAME}
         LANGUAGES CXX C
         )
 
-add_library(${PROJECT_NAME} STATIC )
+add_library(${PROJECT_NAME} STATIC)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
-        src/TMS/dev/TMP117I2CDevice.cpp include/TMS/dev/TMP117I2CDevice.hpp
+        src/TMS/dev/TMP117I2CDevice.cpp
         src/TMS/TMS.cpp
         src/TMS/dev/HeatPump.cpp
         src/TMS/dev/RadiatorFan.cpp
