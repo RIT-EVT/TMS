@@ -16,23 +16,23 @@ int main() {
     // Initialize system
     EVT::core::platform::init();
 
-    IO::PWM& pwm = IO::getPWM<IO::Pin::PC_0>();
-    IO::GPIO& gpio = IO::getGPIO<IO::Pin::PC_1>();
+    IO::GPIO& fan1EN = IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO& fan1IN2 = IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT);
+    IO::PWM& pwm = IO::getPWM<IO::Pin::PA_0>();
+    TMS::RadiatorFan fan1(pwm, fan1EN, fan1IN2);
 
-    IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
-    TMS::RadiatorFan fan = TMS::RadiatorFan(pwm, gpio);
+    IO::GPIO& fan2EN = IO::getGPIO<IO::Pin::PC_0>(IO::GPIO::Direction::OUTPUT);
+    IO::GPIO& fan2IN2 = IO::getGPIO<IO::Pin::PC_1>(IO::GPIO::Direction::OUTPUT);
+    IO::PWM& pwm2 = IO::getPWM<IO::Pin::PC_2>();
+    TMS::RadiatorFan fan2(pwm2, fan2EN, fan2IN2);
 
-    // Simple code to test the fan at different speeds
+    while(1) {
+        fan1.setSpeed(100);
+        fan2.setSpeed(100);
+        time::wait(2000);
 
-
-
-    fan.setSpeed(30);
-    EVT::core::time::wait(5000);
-    fan.setSpeed(0);
-    EVT::core::time::wait(5000);
-    fan.setSpeed(20);
-    EVT::core::time::wait(5000);
-    fan.setSpeed(0);
-    EVT::core::time::wait(5000);
-    fan.setSpeed(10);
+        fan1.setSpeed(0);
+        fan2.setSpeed(0);
+        time::wait(2000);
+    }
 }

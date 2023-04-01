@@ -101,7 +101,6 @@ extern "C" void COTmrLock(void) {}
 extern "C" void COTmrUnlock(void) {}
 
 int main() {
-
     // Initialize system
     EVT::core::platform::init();
 
@@ -113,7 +112,7 @@ int main() {
     can.addIRQHandler(canInterruptHandler, reinterpret_cast<void*>(&canOpenQueue));
 
     // Initialize the timer
-    DEV::Timer& timer = DEV::getTimer<DEV::MCUTimer::Timer2>(100);
+    DEV::Timer& timer = DEV::getTimer<DEV::MCUTimer::Timer16>(100);
 
     // Set up Logger
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
@@ -157,11 +156,21 @@ int main() {
             bus1[i] = &devices[i];
         }
     }
-    TMS::TCA9545A tca(i2c, 0x25, reinterpret_cast<TMS::I2CDevice***>(buses));
-    TMS::TMS tms(IO::getGPIO<IO::Pin::PB_2>(), IO::getGPIO<IO::Pin::PB_8>(), adc, tca);
 
-    TMS::RadiatorFan fans[] = {
-        TMS::RadiatorFan(IO::getPWM<IO::Pin::PC_0>()),
+    uint8_t numDevices[4] = { 0, 3, 1, 0 };
+
+    TMS::TCA9545A tca(i2c, 0x70, reinterpret_cast<TMS::I2CDevice***>(buses), numDevices);
+    TMS::TMS tms(tca);
+
+    TMS::RadiatorFan fans[2] = {
+        TMS::RadiatorFan(IO::getPWM<IO::Pin::PA_0>(),
+                          IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT),
+                          IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT)
+                              ),
+        TMS::RadiatorFan(IO::getPWM<IO::Pin::PC_2>(),
+                         IO::getGPIO<IO::Pin::PC_0>(IO::GPIO::Direction::OUTPUT),
+                         IO::getGPIO<IO::Pin::PC_1>(IO::GPIO::Direction::OUTPUT)
+                             )
     };
 
     // Reserved memory for CANopen stack usage
@@ -234,7 +243,7 @@ int main() {
             // Activate the pump and fans -- will be replaced with more advanced cooling logic later
             pump.setSpeed(60);
             for (TMS::RadiatorFan fan : fans) {
-                fan.setSpeed(30);
+                fan.setSpeed(60);
             }
             break;
         default:

@@ -6,7 +6,7 @@
 #include <EVT/utils/time.hpp>
 #include <type_traits>
 #define MAX_SPEED 100
-#define PERIOD 30000
+#define FAN_PERIOD 100
 
 namespace IO = EVT::core::IO;
 namespace time = EVT::core::time;
@@ -23,7 +23,7 @@ public:
      *
      * @param pwm PWM instance to control the fan
      */
-    RadiatorFan(IO::PWM& pwm, IO::GPIO& gpio);
+    RadiatorFan(IO::PWM& pwm, IO::GPIO& enable, IO::GPIO& in2);
 
     /**
      * Sets the speed based on the duty cycle of the PWM
@@ -36,7 +36,8 @@ private:
     /** PWM instance to control the fan */
     IO::PWM& pwm;
     /** GPIO instance to turn on the fan */
-    IO::GPIO& gpio;
+    IO::GPIO& enable;
+    IO::GPIO& in2;
 };
 
 }// namespace TMS
