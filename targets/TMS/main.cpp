@@ -121,6 +121,8 @@ int main() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Logger initialized.");
     timer.stopTimer();
 
+    TMS::HeatPump pump(IO::getPWM<IO::Pin::PA_6>());
+
     //array storing I2CDevices
     TMS::TMP117I2CDevice devices[6];
     uint16_t tempValues[6];
@@ -142,12 +144,9 @@ int main() {
 
     //TODO: figure out why stuff is "implicitly deleted"
     // Set up TMS and necessary device drivers
-    IO::ADC& adc = IO::getADC<IO::Pin::PA_4>();
-    IO::PWM& pwm = IO::getPWM<IO::Pin::PB_14>();
-    IO::I2C& i2c = IO::getI2C<IO::Pin::PB_9, IO::Pin::PB_1>();
-    auto pump = TMS::HeatPump(pwm);
-    TMS::TMP117 tmpDevices[6];
-    for (uint8_t i = 0; i < 6; i++) {
+    TMS::TMP117 tmpDevices[4];
+
+    for (uint8_t i = 0; i < 4; i++) {
         tmpDevices[i] = TMS::TMP117(&i2c, 0x48 + i % 4);
         devices[i] = TMS::TMP117I2CDevice(&tmpDevices[i], &tempValues[i]);
         if (i < 4) {
@@ -241,7 +240,7 @@ int main() {
             COTmrProcess(&canNode.Tmr);
 
             // Activate the pump and fans -- will be replaced with more advanced cooling logic later
-            pump.setSpeed(60);
+            pump.setSpeed(50);
             for (TMS::RadiatorFan fan : fans) {
                 fan.setSpeed(60);
             }

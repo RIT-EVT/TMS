@@ -17,7 +17,7 @@ int main() {
 
     char buf[100];
 
-    IO::PWM& pwm = IO::getPWM<IO::Pin::PC_0>();
+    IO::PWM& pwm = IO::getPWM<IO::Pin::PA_6>();
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
     TMS::HeatPump pump = TMS::HeatPump(pwm);
 
