@@ -51,7 +51,7 @@ void handleNMT(IO::CANMessage& message) {
  * @param priv[in] The private data (FixedQueue<CANOPEN_QUEUE_SIZE, CANMessage>)
  */
 void canInterruptHandler(IO::CANMessage& message, void* priv) {
-    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
+//    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
 
     // Handle NMT messages
     if (message.getId() == 0) {
