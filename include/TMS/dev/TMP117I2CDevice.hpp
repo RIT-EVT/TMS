@@ -7,7 +7,7 @@
 
 namespace TMS {
 
-class TMP117I2CDevice : I2CDevice {
+class TMP117I2CDevice : public I2CDevice {
 
 public:
     /**

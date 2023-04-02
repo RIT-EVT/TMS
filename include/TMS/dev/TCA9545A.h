@@ -35,7 +35,8 @@ public:
      * @param[in] addr address of I2C device
      * @param[in] buses array of buses containing I2CDevices
      */
-    TCA9545A(IO::I2C& i2c, uint8_t addr = TCA9545A_DEFAULT_I2C_ADDR, I2CDevice** buses[4] = nullptr);
+    TCA9545A(IO::I2C& i2c, uint8_t addr = TCA9545A_DEFAULT_I2C_ADDR,
+             I2CDevice** buses[4] = nullptr, uint8_t numDevices[4] = nullptr);
 
     /**
      * Sets the active bus on the TCA9545A

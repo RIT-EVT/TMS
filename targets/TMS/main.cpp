@@ -123,17 +123,18 @@ int main() {
 
     TMS::HeatPump pump(IO::getPWM<IO::Pin::PA_6>());
 
+    IO::I2C& i2c = IO::getI2C<IO::Pin::PB_8, IO::Pin::PB_9>();
+
     //array storing I2CDevices
-    TMS::TMP117I2CDevice devices[6];
-    uint16_t tempValues[6];
+    TMS::TMP117I2CDevice devices[4];
 
     //BUS POINTERS
     //array of buses
     TMS::TMP117I2CDevice** buses[4];
     //buses
-    TMS::TMP117I2CDevice* bus0[4];
-    TMS::TMP117I2CDevice* bus1[4];
-    TMS::TMP117I2CDevice* bus2[0];
+    TMS::TMP117I2CDevice* bus0[0];
+    TMS::TMP117I2CDevice* bus1[3];
+    TMS::TMP117I2CDevice* bus2[1];
     TMS::TMP117I2CDevice* bus3[0];
 
     //set each index in buses array to be a bus
@@ -148,11 +149,12 @@ int main() {
 
     for (uint8_t i = 0; i < 4; i++) {
         tmpDevices[i] = TMS::TMP117(&i2c, 0x48 + i % 4);
-        devices[i] = TMS::TMP117I2CDevice(&tmpDevices[i], &tempValues[i]);
-        if (i < 4) {
-            bus0[i] = &devices[i];
-        } else if (i < 8) {
-            bus1[i] = &devices[i];
+        devices[i] = TMS::TMP117I2CDevice(&tmpDevices[i], &TMS::TMS::sensorTemps[i]);
+
+        if (i == 0) {
+            bus2[i] = &devices[i];
+        } else {
+            bus1[i-1] = &devices[i];
         }
     }
 
