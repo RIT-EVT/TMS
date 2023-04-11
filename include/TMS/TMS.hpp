@@ -6,6 +6,8 @@
 #include <EVT/io/GPIO.hpp>
 #include <EVT/utils/log.hpp>
 #include <TMS/dev/TCA9545A.h>
+#include <TMS/dev/RadiatorFan.hpp>
+#include <TMS/dev/HeatPump.hpp>
 
 #define NUM_TEMP_SENSORS 4
 
@@ -53,12 +55,16 @@ public:
      */
     uint16_t getObjectDictionarySize();
 
+    /**
+     * TMS State Machine Hack
+     */
+     void process(RadiatorFan* fans, HeatPump pump);
+
 private:
     /**
      * TCA9545A instance
      */
     TCA9545A& tca9545A;
-
 
     /**
      * Have to know the size of the object dictionary for initialization

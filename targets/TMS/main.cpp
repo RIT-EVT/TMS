@@ -242,10 +242,7 @@ int main() {
             COTmrProcess(&canNode.Tmr);
 
             // Activate the pump and fans -- will be replaced with more advanced cooling logic later
-            pump.setSpeed(50);
-            for (TMS::RadiatorFan fan : fans) {
-                fan.setSpeed(60);
-            }
+            tms.process(fans, pump);
             break;
         default:
             log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
