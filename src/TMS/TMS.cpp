@@ -40,14 +40,14 @@ void TMS::process(RadiatorFan* fans, HeatPump pump) {
         // COOL_LEVEL_2
         log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: COOL_LEVEL_2");
         pump.setSpeed(75);
-        fan1.setSpeed(50);
-        fan2.setSpeed(50);
+        fan1.setSpeed(75);
+        fan2.setSpeed(75);
     } else if (highestTemp >= 30) {
         // COOL_LEVEL_1
         log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: COOL_LEVEL_1");
         pump.setSpeed(50);
-        fan1.setSpeed(25);
-        fan2.setSpeed(25);
+        fan1.setSpeed(50);
+        fan2.setSpeed(50);
     } else {
         // IDLE
         log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: IDLE");

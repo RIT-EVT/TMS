@@ -166,11 +166,13 @@ int main() {
     TMS::RadiatorFan fans[2] = {
         TMS::RadiatorFan(IO::getPWM<IO::Pin::PA_0>(),
                           IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT),
-                          IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT)
+                          IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT),
+                              IO::getGPIO<IO::Pin::PB_4>(IO::GPIO::Direction::INPUT)
                               ),
         TMS::RadiatorFan(IO::getPWM<IO::Pin::PC_2>(),
                          IO::getGPIO<IO::Pin::PC_0>(IO::GPIO::Direction::OUTPUT),
-                         IO::getGPIO<IO::Pin::PC_1>(IO::GPIO::Direction::OUTPUT)
+                         IO::getGPIO<IO::Pin::PC_1>(IO::GPIO::Direction::OUTPUT),
+                         IO::getGPIO<IO::Pin::PB_5>(IO::GPIO::Direction::INPUT)
                              )
     };
 
