@@ -22,7 +22,8 @@ void TMS::process(RadiatorFan* fans, HeatPump pump) {
     RadiatorFan fan2 = fans[1];
 
     uint16_t highestTemp = 0;
-    for(uint16_t temp: sensorTemps) {
+    for(uint8_t i = 1; i < 4; i++) {
+        uint16_t temp = sensorTemps[i];
         if (temp > highestTemp) {
             highestTemp = temp;
         }
@@ -33,28 +34,32 @@ void TMS::process(RadiatorFan* fans, HeatPump pump) {
     if (highestTemp >= 50) {
         // COOL_LEVEL_MAX
         log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: COOL_LEVEL_MAX");
-        pump.setSpeed(100);
-        fan1.setSpeed(100);
-        fan2.setSpeed(100);
+        pumpSpeed = 100;
+        fan1Speed = 100;
+        fan2Speed = 100;
     } else if (highestTemp >= 40) {
         // COOL_LEVEL_2
         log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: COOL_LEVEL_2");
-        pump.setSpeed(75);
-        fan1.setSpeed(75);
-        fan2.setSpeed(75);
+        pumpSpeed = 75;
+        fan1Speed = 75;
+        fan2Speed = 75;
     } else if (highestTemp >= 30) {
         // COOL_LEVEL_1
         log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: COOL_LEVEL_1");
-        pump.setSpeed(50);
-        fan1.setSpeed(50);
-        fan2.setSpeed(50);
+        pumpSpeed = 50;
+        fan1Speed = 50;
+        fan2Speed = 50;
     } else {
         // IDLE
         log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: IDLE");
-        pump.setSpeed(50);
-        fan1.setSpeed(0);
-        fan2.setSpeed(0);
+        pumpSpeed = 50;
+        fan1Speed = 0;
+        fan2Speed = 0;
     }
+
+    pump.setSpeed(pumpSpeed);
+    fan1.setSpeed(fan1Speed);
+    fan2.setSpeed(fan2Speed);
 }
 
 }// namespace TMS

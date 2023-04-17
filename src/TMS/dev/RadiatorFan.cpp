@@ -20,8 +20,10 @@ void RadiatorFan::setSpeed(uint16_t speed) {
             speed = MAX_SPEED;
         }
 
-        // Limit speed to 50% duty cycle
-        speed /= 2;
+            // Limit to 75% speed
+            speed = speed * 3 / 4;
+
+        }
     }
 
     pwm.setDutyCycle(speed);

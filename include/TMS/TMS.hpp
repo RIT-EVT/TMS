@@ -31,6 +31,10 @@ public:
      */
     static uint16_t sensorTemps[NUM_TEMP_SENSORS];
 
+    uint8_t pumpSpeed = 0;
+    uint8_t fan1Speed = 0;
+    uint8_t fan2Speed = 0;
+
     /**
      * The node ID used to identify the device on the CAN network.
      */
@@ -150,6 +154,38 @@ private:
             .Data = (uintptr_t) 1000,
         },
 
+        // TPDO1 settings
+        // 0: The TPDO number, default 0
+        // 1: The COB-ID used by TPDO0, provided as a function of the TPDO number
+        // 2: How the TPO is triggered, default to manual triggering
+        // 3: Inhibit time, defaults to 0
+        // 5: Timer trigger time in 1ms units, 0 will disable the timer based triggering
+        {
+            .Key = CO_KEY(0x1801, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 1,
+        },
+        {
+            .Key = CO_KEY(0x1801, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) CO_COBID_TPDO_DEFAULT(1) + NODE_ID,
+        },
+        {
+            .Key = CO_KEY(0x1801, 2, CO_UNSIGNED8 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 0xFE,
+        },
+        {
+            .Key = CO_KEY(0x1801, 3, CO_UNSIGNED16 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 0,
+        },
+        {
+            .Key = CO_KEY(0x1801, 5, CO_UNSIGNED16 | CO_OBJ_D__R_),
+            .Type = CO_TEVENT,
+            .Data = (uintptr_t) 1000,
+        },
+
         // TPDO0 mapping, determines the PDO messages to send when TPDO0 is triggered
         // 0: The number of PDO messages associated with the TPDO
         // 1: Link to the first PDO message
@@ -162,22 +198,47 @@ private:
         {
             .Key = CO_KEY(0x1A00, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
             .Type = nullptr,
-            .Data = CO_LINK(0x2100, 0, 8),
+            .Data = CO_LINK(0x2100, 0, 16),
         },
         {
             .Key = CO_KEY(0x1A00, 2, CO_UNSIGNED32 | CO_OBJ_D__R_),
             .Type = nullptr,
-            .Data = CO_LINK(0x2100, 1, 8),
+            .Data = CO_LINK(0x2100, 1, 16),
         },
         {
             .Key = CO_KEY(0x1A00, 3, CO_UNSIGNED32 | CO_OBJ_D__R_),
             .Type = nullptr,
-            .Data = CO_LINK(0x2100, 2, 8),
+            .Data = CO_LINK(0x2100, 2, 16),
         },
         {
             .Key = CO_KEY(0x1A00, 4, CO_UNSIGNED32 | CO_OBJ_D__R_),
             .Type = nullptr,
-            .Data = CO_LINK(0x2100, 3, 8),
+            .Data = CO_LINK(0x2100, 3, 16),
+        },
+
+        // TPDO1 mapping, determines the PDO messages to send when TPDO0 is triggered
+        // 0: The number of PDO messages associated with the TPDO
+        // 1: Link to the first PDO message
+        // n: Link to the nth PDO message
+        {
+            .Key = CO_KEY(0x1A01, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = (uintptr_t) 3,
+        },
+        {
+            .Key = CO_KEY(0x1A01, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = CO_LINK(0x2100, 4, 8),
+        },
+        {
+            .Key = CO_KEY(0x1A01, 2, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = CO_LINK(0x2100, 5, 8),
+        },
+        {
+            .Key = CO_KEY(0x1A01, 3, CO_UNSIGNED32 | CO_OBJ_D__R_),
+            .Type = nullptr,
+            .Data = CO_LINK(0x2100, 6, 8),
         },
 
         // User defined data, this will be where we put elements that can be
@@ -202,6 +263,21 @@ private:
             .Key = CO_KEY(0x2100, 3, CO_UNSIGNED16 | CO_OBJ___PR_),
             .Type = nullptr,
             .Data = (uintptr_t) &sensorTemps[3],
+        },
+        {
+            .Key = CO_KEY(0x2100, 4, CO_UNSIGNED8 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &pumpSpeed,
+        },
+        {
+            .Key = CO_KEY(0x2100, 5, CO_UNSIGNED8 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &fan1Speed,
+        },
+        {
+            .Key = CO_KEY(0x2100, 6, CO_UNSIGNED8 | CO_OBJ___PR_),
+            .Type = nullptr,
+            .Data = (uintptr_t) &fan2Speed,
         },
 
         // End of dictionary marker
