@@ -32,12 +32,15 @@ void handleNMT(IO::CANMessage& message) {
         CO_MODE mode;
         switch (payload[0]) {
         case 0x01:
+            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Operational");
             mode = CO_OPERATIONAL;
             break;
         case 0x80:
+            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Preoperational");
             mode = CO_PREOP;
             break;
         default:
+            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Invalid");
             mode = CO_INVALID;
         }
         if (canNode.Nmt.Mode != mode)
@@ -126,7 +129,7 @@ int main() {
     IO::I2C& i2c = IO::getI2C<IO::Pin::PB_8, IO::Pin::PB_9>();
 
     //array storing I2CDevices
-    TMS::TMP117I2CDevice devices[4];
+    TMS::TMP117I2CDevice devices[3];
 
     //BUS POINTERS
     //array of buses
@@ -147,33 +150,29 @@ int main() {
     // Set up TMS and necessary device drivers
     TMS::TMP117 tmpDevices[4];
 
-    for (uint8_t i = 0; i < 4; i++) {
-        tmpDevices[i] = TMS::TMP117(&i2c, 0x48 + i % 4);
-        devices[i] = TMS::TMP117I2CDevice(&tmpDevices[i], &TMS::TMS::sensorTemps[i]);
+    tmpDevices[0] = TMS::TMP117(&i2c, 0x48);
+    devices[0] = TMS::TMP117I2CDevice(&tmpDevices[0], &TMS::TMS::sensorTemps[0]);
+    bus2[0] = &devices[0];
 
-        if (i == 0) {
-            bus2[i] = &devices[i];
-        } else {
-            bus1[i-1] = &devices[i];
-        }
-    }
+    tmpDevices[1] = TMS::TMP117(&i2c, 0x4A);
+    devices[1] = TMS::TMP117I2CDevice(&tmpDevices[1], &TMS::TMS::sensorTemps[2]);
+    bus1[0] = &devices[1];
 
-    uint8_t numDevices[4] = { 0, 3, 1, 0 };
+    tmpDevices[2] = TMS::TMP117(&i2c, 0x4B);
+    devices[2] = TMS::TMP117I2CDevice(&tmpDevices[2], &TMS::TMS::sensorTemps[3]);
+    bus1[1] = &devices[2];
+
+    uint8_t numDevices[4] = { 0, 2, 1, 0 };
 
     TMS::TCA9545A tca(i2c, 0x70, reinterpret_cast<TMS::I2CDevice***>(buses), numDevices);
     TMS::TMS tms(tca);
 
-    TMS::RadiatorFan fans[2] = {
+    TMS::RadiatorFan fans[1] = {
         TMS::RadiatorFan(IO::getPWM<IO::Pin::PA_0>(),
                           IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT),
                           IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT),
                               IO::getGPIO<IO::Pin::PB_4>(IO::GPIO::Direction::INPUT)
-                              ),
-        TMS::RadiatorFan(IO::getPWM<IO::Pin::PC_2>(),
-                         IO::getGPIO<IO::Pin::PC_0>(IO::GPIO::Direction::OUTPUT),
-                         IO::getGPIO<IO::Pin::PC_1>(IO::GPIO::Direction::OUTPUT),
-                         IO::getGPIO<IO::Pin::PB_5>(IO::GPIO::Direction::INPUT)
-                             )
+                              )
     };
 
     // Reserved memory for CANopen stack usage
