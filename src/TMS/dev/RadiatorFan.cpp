@@ -12,16 +12,14 @@ RadiatorFan::RadiatorFan(IO::PWM& pwm, IO::GPIO& enable, IO::GPIO& in2): pwm(pwm
 void RadiatorFan::setSpeed(uint16_t speed) {
     if (speed == 0) {
         enable.writePin(EVT::core::IO::GPIO::State::LOW);
-    }
-    else {
+    } else {
         enable.writePin(EVT::core::IO::GPIO::State::HIGH);
         if (speed > MAX_SPEED) {
             speed = MAX_SPEED;
         }
 
-            // Limit to 75% speed
-            speed = speed * 3 / 4;
-        }
+        // Limit to 75% speed
+        speed = speed * 3 / 4;
     }
 
     pwm.setDutyCycle(speed);

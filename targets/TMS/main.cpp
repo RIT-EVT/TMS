@@ -169,8 +169,7 @@ int main() {
     TMS::RadiatorFan fans[1] = {
         TMS::RadiatorFan(IO::getPWM<IO::Pin::PA_0>(),
                          IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT),
-                         IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT),
-                         IO::getGPIO<IO::Pin::PB_4>(IO::GPIO::Direction::INPUT)),
+                         IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT)),
     };
 
     // Reserved memory for CANopen stack usage

@@ -4,7 +4,6 @@
 #include <EVT/io/GPIO.hpp>
 #include <EVT/io/PWM.hpp>
 #include <EVT/utils/time.hpp>
-#include <type_traits>
 
 #define MAX_SPEED 100
 #define FAN_PERIOD 100
