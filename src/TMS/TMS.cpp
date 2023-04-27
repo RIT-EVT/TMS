@@ -19,10 +19,10 @@ uint16_t TMS::getObjectDictionarySize() {
 }
 void TMS::process(RadiatorFan* fans, HeatPump pump) {
     RadiatorFan fan1 = fans[0];
-//    RadiatorFan fan2 = fans[1];
+    //    RadiatorFan fan2 = fans[1];
 
     uint16_t highestTemp = 0;
-    for(uint8_t i = 1; i < 4; i++) {
+    for (uint8_t i = 1; i < 4; i++) {
         uint16_t temp = sensorTemps[i];
         if (temp > highestTemp) {
             highestTemp = temp;
@@ -59,7 +59,7 @@ void TMS::process(RadiatorFan* fans, HeatPump pump) {
 
     pump.setSpeed(pumpSpeed);
     fan1.setSpeed(fan1Speed);
-//    fan2.setSpeed(fan2Speed);
+    //    fan2.setSpeed(fan2Speed);
 }
 
 }// namespace TMS

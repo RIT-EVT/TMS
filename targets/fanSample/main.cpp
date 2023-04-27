@@ -26,7 +26,7 @@ int main() {
     IO::PWM& pwm2 = IO::getPWM<IO::Pin::PC_2>();
     TMS::RadiatorFan fan2(pwm2, fan2EN, fan2IN2);
 
-    while(1) {
+    while (1) {
         fan1.setSpeed(100);
         fan2.setSpeed(100);
         time::wait(2000);

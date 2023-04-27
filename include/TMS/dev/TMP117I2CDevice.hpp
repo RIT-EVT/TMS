@@ -21,7 +21,7 @@ public:
          * @param[in] tmp117 pointer to tmp object
          * @param[in] tempValue where the temp value is stored
          */
-    TMP117I2CDevice(TMS::TMP117* tmp117, uint16_t* tempValue);
+    TMP117I2CDevice(TMP117* tmp117, uint16_t* tempValue);
 
     /**
          * returns I2CStatus of TMP readTemp()

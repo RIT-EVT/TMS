@@ -54,7 +54,7 @@ void handleNMT(IO::CANMessage& message) {
  * @param priv[in] The private data (FixedQueue<CANOPEN_QUEUE_SIZE, CANMessage>)
  */
 void canInterruptHandler(IO::CANMessage& message, void* priv) {
-//    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
+    //    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
 
     // Handle NMT messages
     if (message.getId() == 0) {
@@ -162,17 +162,16 @@ int main() {
     devices[2] = TMS::TMP117I2CDevice(&tmpDevices[2], &TMS::TMS::sensorTemps[3]);
     bus1[1] = &devices[2];
 
-    uint8_t numDevices[4] = { 0, 2, 1, 0 };
+    uint8_t numDevices[4] = {0, 2, 1, 0};
 
     TMS::TCA9545A tca(i2c, 0x70, reinterpret_cast<TMS::I2CDevice***>(buses), numDevices);
     TMS::TMS tms(tca);
 
     TMS::RadiatorFan fans[1] = {
         TMS::RadiatorFan(IO::getPWM<IO::Pin::PA_0>(),
-                          IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT),
-                          IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT),
-                              IO::getGPIO<IO::Pin::PB_4>(IO::GPIO::Direction::INPUT)
-                              )
+                         IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT),
+                         IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT),
+                         IO::getGPIO<IO::Pin::PB_4>(IO::GPIO::Direction::INPUT)),
     };
 
     // Reserved memory for CANopen stack usage

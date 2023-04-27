@@ -6,7 +6,6 @@ RadiatorFan::RadiatorFan(IO::PWM& pwm, IO::GPIO& enable, IO::GPIO& in2): pwm(pwm
     this->pwm.setDutyCycle(0);
     this->pwm.setPeriod(FAN_PERIOD);
     this->enable.writePin(IO::GPIO::State::LOW);
-
     this->in2.writePin(IO::GPIO::State::LOW);
 }
 
@@ -22,7 +21,6 @@ void RadiatorFan::setSpeed(uint16_t speed) {
 
             // Limit to 75% speed
             speed = speed * 3 / 4;
-
         }
     }
 

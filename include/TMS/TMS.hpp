@@ -5,9 +5,9 @@
 #include <EVT/dev/Thermistor.hpp>
 #include <EVT/io/GPIO.hpp>
 #include <EVT/utils/log.hpp>
-#include <TMS/dev/TCA9545A.hpp>
-#include <TMS/dev/RadiatorFan.hpp>
 #include <TMS/dev/HeatPump.hpp>
+#include <TMS/dev/RadiatorFan.hpp>
+#include <TMS/dev/TCA9545A.hpp>
 
 #define NUM_TEMP_SENSORS 4
 
@@ -24,7 +24,6 @@ public:
      *
      */
     explicit TMS(TCA9545A& tca9545A);
-
 
     /**
      * Array to store the thermistor values
@@ -62,7 +61,7 @@ public:
     /**
      * TMS State Machine Hack
      */
-     void process(RadiatorFan* fans, HeatPump pump);
+    void process(RadiatorFan* fans, HeatPump pump);
 
 private:
     /**
