@@ -5,7 +5,7 @@
 #include <EVT/dev/Thermistor.hpp>
 #include <EVT/io/GPIO.hpp>
 #include <EVT/utils/log.hpp>
-#include <TMS/dev/TCA9545A.h>
+#include <TMS/dev/TCA9545A.hpp>
 
 #define NUM_THERMISTORS 4
 

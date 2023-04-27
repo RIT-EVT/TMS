@@ -10,4 +10,5 @@ IO::I2C::I2CStatus TMP117I2CDevice::action() {
     *tempValue = tmp117->readTemp();
     return IO::I2C::I2CStatus::OK;
 }
+
 }// namespace TMS

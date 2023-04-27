@@ -1,9 +1,9 @@
-#ifndef TMS_TCA9545A_H
-#define TMS_TCA9545A_H
+#ifndef TMS_TCA9545A_HPP
+#define TMS_TCA9545A_HPP
 
-#include <cstddef>
 #include <EVT/io/I2C.hpp>
 #include <TMS/dev/I2CDevice.h>
+#include <cstddef>
 
 namespace IO = EVT::core::IO;
 
@@ -27,12 +27,11 @@ enum TCA9545A_BUS {
  */
 class TCA9545A {
 public:
-
     /**
      * Constructor for the TCA9545A driver
      *
-     * @param[in] i2c I2C device for communicating with TCA
-     * @param[in] addr address of I2C device
+     * @param[in] i2c I2C instance for communicating with TCA
+     * @param[in] addr address of TCA
      * @param[in] buses array of buses containing I2CDevices
      */
     TCA9545A(IO::I2C& i2c, uint8_t addr = TCA9545A_DEFAULT_I2C_ADDR, I2CDevice** buses[4] = nullptr);
@@ -75,9 +74,8 @@ private:
      * @return Result of the I2C read operation
      */
     IO::I2C::I2CStatus readRegister(uint8_t reg, uint8_t* val);
-
 };
 
-}
+}// namespace TMS
 
-#endif//TMS_TCA9545A_H
+#endif//TMS_TCA9545A_HPP
