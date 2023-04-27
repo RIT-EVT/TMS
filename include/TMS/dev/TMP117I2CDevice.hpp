@@ -2,36 +2,46 @@
 #define TMS_TMP117I2CDEVICE_HPP
 
 #include <EVT/io/I2C.hpp>
-#include <TMS/dev/I2CDevice.h>
+#include <TMS/dev/I2CDevice.hpp>
 #include <TMS/dev/TMP117.hpp>
 
 namespace TMS {
 
+/**
+ * Implementation of I2CDevice for the TMP117
+ */
 class TMP117I2CDevice : public I2CDevice {
 
 public:
     /**
-         * default constructor for instantiation of uninitialized instances
-         */
+     * Constructor for instantiation of uninitialized instances
+     */
     TMP117I2CDevice();
 
     /**
-         * TMP117 constructor
-         *
-         * @param[in] tmp117 pointer to tmp object
-         * @param[in] tempValue where the temp value is stored
-         */
+     * TMP117 constructor
+     *
+     * @param[in] tmp117 Pointer to tmp object
+     * @param[in] tempValue Where the temp value should be stored
+     */
     TMP117I2CDevice(TMP117* tmp117, uint16_t* tempValue);
 
     /**
-         * returns I2CStatus of TMP readTemp()
-         * @return I2CStatus
-         *
-         */
+     * Reads the sensor value and stores it in tempValue
+     *
+     * @return I2CStatus of the internal action
+     */
     IO::I2C::I2CStatus action() override;
 
 private:
+    /**
+     * TMP117 instance to read temperatures from
+     */
     TMP117* tmp117;
+
+    /**
+     * Address to write temperature values to
+     */
     uint16_t* tempValue;
 };
 

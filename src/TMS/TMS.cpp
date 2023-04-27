@@ -17,6 +17,7 @@ CO_OBJ_T* TMS::getObjectDictionary() {
 uint16_t TMS::getObjectDictionarySize() {
     return OBJECT_DICTIONARY_SIZE;
 }
+
 void TMS::process(RadiatorFan* fans, HeatPump pump) {
     RadiatorFan fan1 = fans[0];
     //    RadiatorFan fan2 = fans[1];

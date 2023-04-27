@@ -1,5 +1,5 @@
-#ifndef TMS_INCLUDE_TMS_TMS_HPP
-#define TMS_INCLUDE_TMS_TMS_HPP
+#ifndef TMS_HPP
+#define TMS_HPP
 
 #include <Canopen/co_core.h>
 #include <EVT/dev/Thermistor.hpp>
@@ -20,19 +20,18 @@ namespace TMS {
 class TMS {
 public:
     /**
-     * Construct a TMS instance with thermistors using the ADC instances in thermADCs
+     * Construct a TMS instance
      *
+     * @param tca9545A I2C MUX instance to use for getting temp sensor data
      */
     explicit TMS(TCA9545A& tca9545A);
 
     /**
      * Array to store the thermistor values
+     * Must be public, so they can be written to by the TMP117Device class
+     * TODO: Refactor code to make this private
      */
     static uint16_t sensorTemps[NUM_TEMP_SENSORS];
-
-    uint8_t pumpSpeed = 0;
-    uint8_t fan1Speed = 0;
-    uint8_t fan2Speed = 0;
 
     /**
      * The node ID used to identify the device on the CAN network.
@@ -59,7 +58,11 @@ public:
     uint16_t getObjectDictionarySize();
 
     /**
-     * TMS State Machine Hack
+     * Update fan and pump speeds
+     * TODO: Modify to meet EVT standards
+     *
+     * @param fans Array of radiator fan instances
+     * @param pump Heat pump
      */
     void process(RadiatorFan* fans, HeatPump pump);
 
@@ -68,6 +71,21 @@ private:
      * TCA9545A instance
      */
     TCA9545A& tca9545A;
+
+    /**
+     * Current heat pump speed
+     */
+    uint8_t pumpSpeed = 0;
+
+    /**
+     * Fan 1 speed
+     */
+    uint8_t fan1Speed = 0;
+
+    /**
+     * Fan 2 speed
+     */
+    uint8_t fan2Speed = 0;
 
     /**
      * Have to know the size of the object dictionary for initialization
@@ -286,4 +304,4 @@ private:
 
 }// namespace TMS
 
-#endif//TMS_INCLUDE_TMS_TMS_HPP
+#endif//TMS_HPP

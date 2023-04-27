@@ -1,5 +1,5 @@
-#ifndef TMS_I2CDEVICE_H
-#define TMS_I2CDEVICE_H
+#ifndef TMS_I2CDEVICE_HPP
+#define TMS_I2CDEVICE_HPP
 
 #include <cstddef>
 #include <EVT/io/I2C.hpp>
@@ -22,4 +22,4 @@ public:
 
 }
 
-#endif//TMS_I2CDEVICE_H
+#endif//TMS_I2CDEVICE_HPP

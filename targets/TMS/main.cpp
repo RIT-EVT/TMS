@@ -11,7 +11,7 @@
 
 #include <TMS/TMS.hpp>
 #include <TMS/dev/HeatPump.hpp>
-#include <TMS/dev/I2CDevice.h>
+#include <TMS/dev/I2CDevice.hpp>
 #include <TMS/dev/RadiatorFan.hpp>
 #include <TMS/dev/TMP117.hpp>
 #include <TMS/dev/TMP117I2CDevice.hpp>
@@ -62,8 +62,7 @@ void canInterruptHandler(IO::CANMessage& message, void* priv) {
         return;
     }
 
-    EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>* queue =
-        (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
+    auto* queue = (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
     if (queue == nullptr)
         return;
     if (!message.isCANExtended())

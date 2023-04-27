@@ -28,7 +28,7 @@ public:
      *
      * @param pwm PWM to be used to control the heat pump
      */
-    HeatPump(IO::PWM& pwm);
+    explicit HeatPump(IO::PWM& pwm);
 
     /**
      * Set the speed of the pump
