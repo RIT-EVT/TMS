@@ -2,7 +2,7 @@
 
 namespace TMS {
 
-RadiatorFan::RadiatorFan(IO::PWM& pwm, IO::GPIO& enable, IO::GPIO& in2): pwm(pwm), enable(enable), in2(in2) {
+RadiatorFan::RadiatorFan(IO::PWM& pwm, IO::GPIO& enable, IO::GPIO& in2) : pwm(pwm), enable(enable), in2(in2) {
     this->pwm.setDutyCycle(0);
     this->pwm.setPeriod(FAN_PERIOD);
     this->enable.writePin(IO::GPIO::State::LOW);
