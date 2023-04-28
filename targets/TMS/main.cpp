@@ -11,8 +11,10 @@
 
 #include <TMS/TMS.hpp>
 #include <TMS/dev/HeatPump.hpp>
+#include <TMS/dev/I2CDevice.h>
 #include <TMS/dev/RadiatorFan.hpp>
 #include <TMS/dev/TMP117.hpp>
+#include <TMS/dev/TMP117I2CDevice.hpp>
 
 namespace IO = EVT::core::IO;
 namespace DEV = EVT::core::DEV;
@@ -99,6 +101,7 @@ extern "C" void COTmrLock(void) {}
 extern "C" void COTmrUnlock(void) {}
 
 int main() {
+
     // Initialize system
     EVT::core::platform::init();
 
@@ -119,11 +122,44 @@ int main() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Logger initialized.");
     timer.stopTimer();
 
+    //array storing I2CDevices
+    TMS::TMP117I2CDevice devices[6];
+    uint16_t tempValues[6];
+
+    //BUS POINTERS
+    //array of buses
+    TMS::TMP117I2CDevice** buses[4];
+    //buses
+    TMS::TMP117I2CDevice* bus0[4];
+    TMS::TMP117I2CDevice* bus1[4];
+    TMS::TMP117I2CDevice* bus2[0];
+    TMS::TMP117I2CDevice* bus3[0];
+
+    //set each index in buses array to be a bus
+    buses[0] = bus0;
+    buses[1] = bus1;
+    buses[2] = bus2;
+    buses[3] = bus3;
+
+    //TODO: figure out why stuff is "implicitly deleted"
     // Set up TMS and necessary device drivers
     IO::ADC& adc = IO::getADC<IO::Pin::PA_4>();
-    TMS::TMS tms(IO::getGPIO<IO::Pin::PB_2>(), IO::getGPIO<IO::Pin::PB_8>(), adc);
     IO::PWM& pwm = IO::getPWM<IO::Pin::PB_14>();
+    IO::I2C& i2c = IO::getI2C<IO::Pin::PB_9, IO::Pin::PB_1>();
     auto pump = TMS::HeatPump(pwm);
+    TMS::TMP117 tmpDevices[6];
+    for (uint8_t i = 0; i < 6; i++) {
+        tmpDevices[i] = TMS::TMP117(&i2c, 0x48 + i % 4);
+        devices[i] = TMS::TMP117I2CDevice(&tmpDevices[i], &tempValues[i]);
+        if (i < 4) {
+            bus0[i] = &devices[i];
+        } else if (i < 8) {
+            bus1[i] = &devices[i];
+        }
+    }
+    TMS::TCA9545A tca(i2c, 0x25, reinterpret_cast<TMS::I2CDevice***>(buses));
+    TMS::TMS tms(IO::getGPIO<IO::Pin::PB_2>(), IO::getGPIO<IO::Pin::PB_8>(), adc, tca);
+
     TMS::RadiatorFan fans[] = {
         TMS::RadiatorFan(IO::getPWM<IO::Pin::PC_0>()),
     };

@@ -2,16 +2,22 @@
 
 namespace TMS {
 
-RadiatorFan::RadiatorFan(IO::PWM& pwm) : pwm(pwm) {
+RadiatorFan::RadiatorFan(IO::PWM& pwm, IO::GPIO& gpio): pwm(pwm), gpio(gpio) {
     this->pwm.setDutyCycle(0);
     this->pwm.setPeriod(PERIOD);
 }
 
-void RadiatorFan::setSpeed(uint16_t speed) {
-    if (speed > MAX_SPEED) {
-        speed = MAX_SPEED;
+    void RadiatorFan::setSpeed(uint16_t speed) {
+        if (speed == 0){
+            gpio.writePin(EVT::core::IO::GPIO::State::LOW);
+        }
+        else{
+            gpio.writePin(EVT::core::IO::GPIO::State::HIGH);
+            if (speed > MAX_SPEED) {
+                speed = MAX_SPEED;
+            }
+            pwm.setDutyCycle(speed);
+            }
     }
-    pwm.setDutyCycle(speed);
-}
 
 }// namespace TMS

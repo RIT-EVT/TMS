@@ -3,15 +3,17 @@
 
 namespace TMS {
 
-TMP117::TMP117(IO::I2C& i2c, uint8_t deviceID) : deviceID(deviceID), i2c(i2c) {
+TMP117::TMP117(IO::I2C* i2c, uint8_t deviceID) : deviceID(deviceID), i2c(i2c) {
     tempReg = TEMPREG;
 }
+
+TMP117::TMP117() : deviceID(0), i2c(nullptr) {}
 
 uint16_t TMP117::readTemp() {
     uint16_t input;
     uint8_t tempBytes[2];
 
-    i2c.readReg(deviceID, &tempReg, regLength, tempBytes, valueLength);
+    i2c->readReg(deviceID, &tempReg, regLength, tempBytes, valueLength);
 
     input = ((uint16_t) tempBytes[0]) << 8 | tempBytes[1];
 
@@ -24,5 +26,4 @@ uint16_t TMP117::readTemp() {
 
     return temp;
 }
-
 }// namespace TMS

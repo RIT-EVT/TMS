@@ -21,7 +21,11 @@ public:
      * @param i2c used to read temperature
      * @param deviceID - device address
      * */
-    TMP117(IO::I2C& i2c, uint8_t deviceID);
+    TMP117(IO::I2C* i2c, uint8_t deviceID);
+    /**
+     * default constructor for instantiation of uninitialized instances
+     */
+    TMP117();
 
     /**
      * Reads the temperature
@@ -36,7 +40,7 @@ private:
     /**device ID*/
     uint8_t deviceID;
     /**i2c declaration*/
-    IO::I2C& i2c;
+    IO::I2C* i2c;
     /**length of the temperature register in bytes*/
     uint8_t regLength = 1;
     /**length of the value being read in bytes*/
