@@ -1,8 +1,8 @@
-#ifndef TMS_I2CDEVICE_H
-#define TMS_I2CDEVICE_H
+#ifndef TMS_I2CDEVICE_HPP
+#define TMS_I2CDEVICE_HPP
 
-#include <cstddef>
 #include <EVT/io/I2C.hpp>
+#include <cstddef>
 
 namespace IO = EVT::core::IO;
 namespace TMS {
@@ -20,6 +20,6 @@ public:
     virtual IO::I2C::I2CStatus action() = 0;
 };
 
-}
+}// namespace TMS
 
-#endif//TMS_I2CDEVICE_H
+#endif//TMS_I2CDEVICE_HPP

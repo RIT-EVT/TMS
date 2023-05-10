@@ -2,15 +2,14 @@
 #define TMS_TCA9545A_HPP
 
 #include <EVT/io/I2C.hpp>
-#include <TMS/dev/I2CDevice.h>
+#include <TMS/dev/I2CDevice.hpp>
 #include <cstddef>
+
+#define I2C_MUX_BUS_SIZE 4
 
 namespace IO = EVT::core::IO;
 
 namespace TMS {
-
-constexpr uint8_t TCA9545A_DEFAULT_I2C_ADDR = 0x73;
-
 /**
  * Represents the registers for setting the active bus on the TCA9545A
  */
@@ -23,7 +22,7 @@ enum TCA9545A_BUS {
 
 /**
  * TCA9545A I2C Multiplexer Driver
- * https://www.ti.com/lit/ds/symlink/tca9545a.pdf
+ * Datasheet: https://www.ti.com/lit/ds/symlink/tca9545a.pdf
  */
 class TCA9545A {
 public:
@@ -33,8 +32,10 @@ public:
      * @param[in] i2c I2C instance for communicating with TCA
      * @param[in] addr address of TCA
      * @param[in] buses array of buses containing I2CDevices
+     * @param[in] numDevices Array with the number of devices on each bus
      */
-    TCA9545A(IO::I2C& i2c, uint8_t addr = TCA9545A_DEFAULT_I2C_ADDR, I2CDevice** buses[4] = nullptr);
+    TCA9545A(IO::I2C& i2c, uint8_t addr, I2CDevice** buses[I2C_MUX_BUS_SIZE],
+             uint8_t numDevices[I2C_MUX_BUS_SIZE]);
 
     /**
      * Sets the active bus on the TCA9545A
@@ -51,11 +52,25 @@ public:
     void pollDevices();
 
 private:
-    static constexpr uint8_t I2C_MUX_BUS_SIZE = 4;
-    I2CDevice** busDevices[I2C_MUX_BUS_SIZE];
+    /**
+     * I2C instance used to communicate
+     */
     IO::I2C& i2c;
-    uint8_t numDevices[4];
-    uint8_t slaveAddress;
+
+    /**
+     * I2C slave address for this device
+     */
+    uint8_t i2cSlaveAddress;
+
+    /**
+     * Array of devices on each bus
+     */
+    I2CDevice** busDevices[I2C_MUX_BUS_SIZE];
+
+    /**
+     * Array storing the number of devices on each bus
+     */
+    uint8_t numDevices[I2C_MUX_BUS_SIZE];
 
     /**
      * Writes a value to a register on the TCA9545A

@@ -3,7 +3,7 @@
 
 #include <EVT/io/I2C.hpp>
 
-#define TEMPREG 0x00
+#define TEMP_REG 0x00
 
 namespace IO = EVT::core::IO;
 
@@ -19,9 +19,10 @@ public:
      * Temp sensor constructor
      *
      * @param i2c used to read temperature
-     * @param deviceID - device address
+     * @param i2cSlaveAddress address to ID the sensor on the I2C bus
      * */
-    TMP117(IO::I2C* i2c, uint8_t deviceID);
+    TMP117(IO::I2C* i2c, uint8_t i2cSlaveAddress);
+
     /**
      * default constructor for instantiation of uninitialized instances
      */
@@ -30,23 +31,26 @@ public:
     /**
      * Reads the temperature
      *
-     * @return temperature reading
+     * @return temperature reading in degrees centi celsius
      */
     uint16_t readTemp();
 
 private:
-    /**register for temperature values */
+    /**
+     * Register for temperature values
+     * TODO: Make the register input for I2C.readReg() a const pointer, so this can be const
+     */
     uint8_t tempReg;
-    /**device ID*/
-    uint8_t deviceID;
-    /**i2c declaration*/
+
+    /**
+     * Device ID
+     */
+    uint8_t i2cSlaveAddress;
+
+    /**
+     * I2C instance
+     */
     IO::I2C* i2c;
-    /**length of the temperature register in bytes*/
-    uint8_t regLength = 1;
-    /**length of the value being read in bytes*/
-    uint8_t valueLength = 2;
-    /**16-bit temp value returned from readTemp() in degrees centi celsius*/
-    uint16_t temp;
 };
 
 }// namespace TMS

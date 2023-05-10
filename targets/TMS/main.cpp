@@ -11,7 +11,7 @@
 
 #include <TMS/TMS.hpp>
 #include <TMS/dev/HeatPump.hpp>
-#include <TMS/dev/I2CDevice.h>
+#include <TMS/dev/I2CDevice.hpp>
 #include <TMS/dev/RadiatorFan.hpp>
 #include <TMS/dev/TMP117.hpp>
 #include <TMS/dev/TMP117I2CDevice.hpp>
@@ -32,12 +32,15 @@ void handleNMT(IO::CANMessage& message) {
         CO_MODE mode;
         switch (payload[0]) {
         case 0x01:
+            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Operational");
             mode = CO_OPERATIONAL;
             break;
         case 0x80:
+            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Preoperational");
             mode = CO_PREOP;
             break;
         default:
+            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Invalid");
             mode = CO_INVALID;
         }
         if (canNode.Nmt.Mode != mode)
@@ -51,7 +54,7 @@ void handleNMT(IO::CANMessage& message) {
  * @param priv[in] The private data (FixedQueue<CANOPEN_QUEUE_SIZE, CANMessage>)
  */
 void canInterruptHandler(IO::CANMessage& message, void* priv) {
-    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
+    //    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
 
     // Handle NMT messages
     if (message.getId() == 0) {
@@ -59,8 +62,7 @@ void canInterruptHandler(IO::CANMessage& message, void* priv) {
         return;
     }
 
-    EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>* queue =
-        (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
+    auto* queue = (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
     if (queue == nullptr)
         return;
     if (!message.isCANExtended())
@@ -101,7 +103,6 @@ extern "C" void COTmrLock(void) {}
 extern "C" void COTmrUnlock(void) {}
 
 int main() {
-
     // Initialize system
     EVT::core::platform::init();
 
@@ -113,7 +114,7 @@ int main() {
     can.addIRQHandler(canInterruptHandler, reinterpret_cast<void*>(&canOpenQueue));
 
     // Initialize the timer
-    DEV::Timer& timer = DEV::getTimer<DEV::MCUTimer::Timer2>(100);
+    DEV::Timer& timer = DEV::getTimer<DEV::MCUTimer::Timer16>(100);
 
     // Set up Logger
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
@@ -122,17 +123,20 @@ int main() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Logger initialized.");
     timer.stopTimer();
 
+    TMS::HeatPump pump(IO::getPWM<IO::Pin::PA_6>());
+
+    IO::I2C& i2c = IO::getI2C<IO::Pin::PB_8, IO::Pin::PB_9>();
+
     //array storing I2CDevices
-    TMS::TMP117I2CDevice devices[6];
-    uint16_t tempValues[6];
+    TMS::TMP117I2CDevice devices[3];
 
     //BUS POINTERS
     //array of buses
     TMS::TMP117I2CDevice** buses[4];
     //buses
-    TMS::TMP117I2CDevice* bus0[4];
-    TMS::TMP117I2CDevice* bus1[4];
-    TMS::TMP117I2CDevice* bus2[0];
+    TMS::TMP117I2CDevice* bus0[0];
+    TMS::TMP117I2CDevice* bus1[3];
+    TMS::TMP117I2CDevice* bus2[1];
     TMS::TMP117I2CDevice* bus3[0];
 
     //set each index in buses array to be a bus
@@ -143,25 +147,29 @@ int main() {
 
     //TODO: figure out why stuff is "implicitly deleted"
     // Set up TMS and necessary device drivers
-    IO::ADC& adc = IO::getADC<IO::Pin::PA_4>();
-    IO::PWM& pwm = IO::getPWM<IO::Pin::PB_14>();
-    IO::I2C& i2c = IO::getI2C<IO::Pin::PB_9, IO::Pin::PB_1>();
-    auto pump = TMS::HeatPump(pwm);
-    TMS::TMP117 tmpDevices[6];
-    for (uint8_t i = 0; i < 6; i++) {
-        tmpDevices[i] = TMS::TMP117(&i2c, 0x48 + i % 4);
-        devices[i] = TMS::TMP117I2CDevice(&tmpDevices[i], &tempValues[i]);
-        if (i < 4) {
-            bus0[i] = &devices[i];
-        } else if (i < 8) {
-            bus1[i] = &devices[i];
-        }
-    }
-    TMS::TCA9545A tca(i2c, 0x25, reinterpret_cast<TMS::I2CDevice***>(buses));
-    TMS::TMS tms(IO::getGPIO<IO::Pin::PB_2>(), IO::getGPIO<IO::Pin::PB_8>(), adc, tca);
+    TMS::TMP117 tmpDevices[4];
 
-    TMS::RadiatorFan fans[] = {
-        TMS::RadiatorFan(IO::getPWM<IO::Pin::PC_0>()),
+    tmpDevices[0] = TMS::TMP117(&i2c, 0x48);
+    devices[0] = TMS::TMP117I2CDevice(&tmpDevices[0], &TMS::TMS::sensorTemps[0]);
+    bus2[0] = &devices[0];
+
+    tmpDevices[1] = TMS::TMP117(&i2c, 0x4A);
+    devices[1] = TMS::TMP117I2CDevice(&tmpDevices[1], &TMS::TMS::sensorTemps[2]);
+    bus1[0] = &devices[1];
+
+    tmpDevices[2] = TMS::TMP117(&i2c, 0x4B);
+    devices[2] = TMS::TMP117I2CDevice(&tmpDevices[2], &TMS::TMS::sensorTemps[3]);
+    bus1[1] = &devices[2];
+
+    uint8_t numDevices[4] = {0, 2, 1, 0};
+
+    TMS::TCA9545A tca(i2c, 0x70, reinterpret_cast<TMS::I2CDevice***>(buses), numDevices);
+    TMS::TMS tms(tca);
+
+    TMS::RadiatorFan fans[1] = {
+        TMS::RadiatorFan(IO::getPWM<IO::Pin::PA_0>(),
+                         IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT),
+                         IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT)),
     };
 
     // Reserved memory for CANopen stack usage
@@ -232,10 +240,7 @@ int main() {
             COTmrProcess(&canNode.Tmr);
 
             // Activate the pump and fans -- will be replaced with more advanced cooling logic later
-            pump.setSpeed(60);
-            for (TMS::RadiatorFan fan : fans) {
-                fan.setSpeed(30);
-            }
+            tms.process(fans, pump);
             break;
         default:
             log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
