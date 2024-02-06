@@ -53,54 +53,20 @@ void handleNMT(IO::CANMessage& message) {
  *
  * @param priv[in] The private data (FixedQueue<CANOPEN_QUEUE_SIZE, CANMessage>)
  */
-void canInterruptHandler(IO::CANMessage& message, void* priv) {
-    //    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
+void canInterrupt(IO::CANMessage& message, void* priv) {
+        log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
 
     // Handle NMT messages
     if (message.getId() == 0) {
         handleNMT(message);
         return;
     }
-
     auto* queue = (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
-    if (queue == nullptr)
-        return;
-    if (!message.isCANExtended())
+    if (queue != nullptr)
         queue->append(message);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// CANopen specific Callbacks. Need to be defined in some location
-///////////////////////////////////////////////////////////////////////////////
-extern "C" void CONodeFatalError(void) {
-    log::LOGGER.log(log::Logger::LogLevel::ERROR, "Fatal CANopen error");
-}
 
-extern "C" void COIfCanReceive(CO_IF_FRM* frm) {}
-
-extern "C" int16_t COLssStore(uint32_t baudrate, uint8_t nodeId) { return 0; }
-
-extern "C" int16_t COLssLoad(uint32_t* baudrate, uint8_t* nodeId) { return 0; }
-
-extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {
-    log::LOGGER.log(log::Logger::LogLevel::INFO, "Network Management state changed.");
-}
-
-extern "C" void CONmtHbConsEvent(CO_NMT* nmt, uint8_t nodeId) {}
-
-extern "C" void CONmtHbConsChange(CO_NMT* nmt, uint8_t nodeId, CO_MODE mode) {}
-
-extern "C" int16_t COParaDefault(CO_PARA* pg) { return 0; }
-
-extern "C" void COPdoTransmit(CO_IF_FRM* frm) {}
-
-extern "C" int16_t COPdoReceive(CO_IF_FRM* frm) { return 0; }
-
-extern "C" void COPdoSyncUpdate(CO_RPDO* pdo) {}
-
-extern "C" void COTmrLock(void) {}
-
-extern "C" void COTmrUnlock(void) {}
 
 int main() {
     // Initialize system
@@ -111,7 +77,7 @@ int main() {
 
     // Initialize CAN, add an IRQ that will populate the above queue
     IO::CAN& can = IO::getCAN<IO::Pin::PA_12, IO::Pin::PA_11>();
-    can.addIRQHandler(canInterruptHandler, reinterpret_cast<void*>(&canOpenQueue));
+    can.addIRQHandler(canInterrupt, reinterpret_cast<void*>(&canOpenQueue));
 
     // Initialize the timer
     DEV::Timer& timer = DEV::getTimer<DEV::MCUTimer::Timer16>(100);

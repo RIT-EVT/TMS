@@ -1,7 +1,9 @@
 #ifndef TMS_HPP
 #define TMS_HPP
 
-#include <Canopen/co_core.h>
+#include <EVT/io/CANDevice.hpp>
+#include <EVT/io/CANOpenMacros.hpp>
+#include <co_core.h>
 #include <EVT/dev/Thermistor.hpp>
 #include <EVT/io/GPIO.hpp>
 #include <EVT/utils/log.hpp>
@@ -91,214 +93,41 @@ private:
      * Have to know the size of the object dictionary for initialization
      * process.
      */
-    static constexpr uint16_t OBJECT_DICTIONARY_SIZE = 37;
+    static constexpr uint16_t OBJECT_DICTIONARY_SIZE = 41;
 
     CO_OBJ_T objectDictionary[OBJECT_DICTIONARY_SIZE + 1] = {
-        // Sync ID, defaults to 0x80
-        {
-            .Key = CO_KEY(0x1005, 0, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0x80,
-        },
-        // Information about the hardware, hard coded sample values for now
-        // 1: Vendor ID
-        // 2: Product Code
-        // 3: Revision Number
-        // 4: Serial Number
-        {
-            .Key = CO_KEY(0x1018, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0x10},
-        {
-            .Key = CO_KEY(0x1018, 2, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0x11,
-        },
-        {
-            .Key = CO_KEY(0x1018, 3, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0x12,
-        },
-        {
-            .Key = CO_KEY(0x1018, 4, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0x13,
-        },
+        MANDATORY_IDENTIFICATION_ENTRIES_1000_1014,
+        HEARTBEAT_PRODUCER_1017(2000),
+        IDENTITY_OBJECT_1018,
+        SDO_CONFIGURATION_1200, // Mandatory Keys
 
-        // SDO CAN message IDS.
-        // 1: Client -> Server ID, default is 0x600 + NODE_ID
-        // 2: Server -> Client ID, default is 0x580 + NODE_ID
-        {
-            .Key = CO_KEY(0x1200, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0x600 + NODE_ID,
-        },
-        {
-            .Key = CO_KEY(0x1200, 2, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0x580 + NODE_ID,
-        },
+        TRANSMIT_PDO_SETTINGS_OBJECT_18XX(0,0,NODE_ID,TRANSMIT_PDO_TRIGGER_TIMER),
+        TRANSMIT_PDO_SETTINGS_OBJECT_18XX(1,1,NODE_ID,TRANSMIT_PDO_TRIGGER_TIMER),
 
-        // TPDO0 settings
-        // 0: The TPDO number, default 0
-        // 1: The COB-ID used by TPDO0, provided as a function of the TPDO number
-        // 2: How the TPO is triggered, default to manual triggering
-        // 3: Inhibit time, defaults to 0
-        // 5: Timer trigger time in 1ms units, 0 will disable the timer based triggering
-        {
-            .Key = CO_KEY(0x1800, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0,
-        },
-        {
-            .Key = CO_KEY(0x1800, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) CO_COBID_TPDO_DEFAULT(0) + NODE_ID,
-        },
-        {
-            .Key = CO_KEY(0x1800, 2, CO_UNSIGNED8 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0xFE,
-        },
-        {
-            .Key = CO_KEY(0x1800, 3, CO_UNSIGNED16 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0,
-        },
-        {
-            .Key = CO_KEY(0x1800, 5, CO_UNSIGNED16 | CO_OBJ_D__R_),
-            .Type = CO_TEVENT,
-            .Data = (uintptr_t) 1000,
-        },
+        TRANSMIT_PDO_MAPPING_START_KEY_1AXX(0,4),
+        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(0,1,PDO_MAPPING_UNSIGNED16),
+        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(0,2,PDO_MAPPING_UNSIGNED16),
+        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(0,3,PDO_MAPPING_UNSIGNED16),
+        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(0,4,PDO_MAPPING_UNSIGNED16),
 
-        // TPDO1 settings
-        // 0: The TPDO number, default 0
-        // 1: The COB-ID used by TPDO0, provided as a function of the TPDO number
-        // 2: How the TPO is triggered, default to manual triggering
-        // 3: Inhibit time, defaults to 0
-        // 5: Timer trigger time in 1ms units, 0 will disable the timer based triggering
-        {
-            .Key = CO_KEY(0x1801, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 1,
-        },
-        {
-            .Key = CO_KEY(0x1801, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) CO_COBID_TPDO_DEFAULT(1) + NODE_ID,
-        },
-        {
-            .Key = CO_KEY(0x1801, 2, CO_UNSIGNED8 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0xFE,
-        },
-        {
-            .Key = CO_KEY(0x1801, 3, CO_UNSIGNED16 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 0,
-        },
-        {
-            .Key = CO_KEY(0x1801, 5, CO_UNSIGNED16 | CO_OBJ_D__R_),
-            .Type = CO_TEVENT,
-            .Data = (uintptr_t) 1000,
-        },
+        TRANSMIT_PDO_MAPPING_START_KEY_1AXX(1,3),
+        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(1,1,PDO_MAPPING_UNSIGNED16),
+        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(1,2,PDO_MAPPING_UNSIGNED16),
+        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(1,3,PDO_MAPPING_UNSIGNED16),
 
-        // TPDO0 mapping, determines the PDO messages to send when TPDO0 is triggered
-        // 0: The number of PDO messages associated with the TPDO
-        // 1: Link to the first PDO message
-        // n: Link to the nth PDO message
-        {
-            .Key = CO_KEY(0x1A00, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 4,
-        },
-        {
-            .Key = CO_KEY(0x1A00, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = CO_LINK(0x2100, 0, 16),
-        },
-        {
-            .Key = CO_KEY(0x1A00, 2, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = CO_LINK(0x2100, 1, 16),
-        },
-        {
-            .Key = CO_KEY(0x1A00, 3, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = CO_LINK(0x2100, 2, 16),
-        },
-        {
-            .Key = CO_KEY(0x1A00, 4, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = CO_LINK(0x2100, 3, 16),
-        },
+        DATA_LINK_START_KEY_21XX(0,4),
+        DATA_LINK_21XX(0,0,CO_TUNSIGNED16,&sensorTemps[0]),
+        DATA_LINK_21XX(0,1,CO_TUNSIGNED16,&sensorTemps[1]),
+        DATA_LINK_21XX(0,2,CO_TUNSIGNED16,&sensorTemps[2]),
+        DATA_LINK_21XX(0,3,CO_TUNSIGNED16,&sensorTemps[3]),
 
-        // TPDO1 mapping, determines the PDO messages to send when TPDO0 is triggered
-        // 0: The number of PDO messages associated with the TPDO
-        // 1: Link to the first PDO message
-        // n: Link to the nth PDO message
-        {
-            .Key = CO_KEY(0x1A01, 0, CO_UNSIGNED8 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = (uintptr_t) 3,
-        },
-        {
-            .Key = CO_KEY(0x1A01, 1, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = CO_LINK(0x2100, 4, 8),
-        },
-        {
-            .Key = CO_KEY(0x1A01, 2, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = CO_LINK(0x2100, 5, 8),
-        },
-        {
-            .Key = CO_KEY(0x1A01, 3, CO_UNSIGNED32 | CO_OBJ_D__R_),
-            .Type = nullptr,
-            .Data = CO_LINK(0x2100, 6, 8),
-        },
-
-        // User defined data, this will be where we put elements that can be
-        // accessed via SDO and depending on configuration PDO
-
-        {
-            .Key = CO_KEY(0x2100, 0, CO_UNSIGNED16 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &sensorTemps[0],
-        },
-        {
-            .Key = CO_KEY(0x2100, 1, CO_UNSIGNED16 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &sensorTemps[1],
-        },
-        {
-            .Key = CO_KEY(0x2100, 2, CO_UNSIGNED16 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &sensorTemps[2],
-        },
-        {
-            .Key = CO_KEY(0x2100, 3, CO_UNSIGNED16 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &sensorTemps[3],
-        },
-        {
-            .Key = CO_KEY(0x2100, 4, CO_UNSIGNED8 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &pumpSpeed,
-        },
-        {
-            .Key = CO_KEY(0x2100, 5, CO_UNSIGNED8 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &fan1Speed,
-        },
-        {
-            .Key = CO_KEY(0x2100, 6, CO_UNSIGNED8 | CO_OBJ___PR_),
-            .Type = nullptr,
-            .Data = (uintptr_t) &fan2Speed,
-        },
+        DATA_LINK_START_KEY_21XX(1,3),
+        DATA_LINK_21XX(1,0,CO_TUNSIGNED16,&pumpSpeed),
+        DATA_LINK_21XX(1,1,CO_TUNSIGNED16,&fan1Speed),
+        DATA_LINK_21XX(1,2,CO_TUNSIGNED16, &fan2Speed),
 
         // End of dictionary marker
-        CO_OBJ_DIR_ENDMARK,
+        CO_OBJ_DICT_ENDMARK,
     };
 };
 
