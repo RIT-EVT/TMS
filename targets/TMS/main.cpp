@@ -9,6 +9,7 @@
 #include <EVT/utils/log.hpp>
 #include <EVT/utils/types/FixedQueue.hpp>
 
+#include "../../libs/EVT-core/samples/canopen/canopen_tpdo/TPDOCanNode.hpp"
 #include <TMS/TMS.hpp>
 #include <TMS/dev/HeatPump.hpp>
 #include <TMS/dev/I2CDevice.hpp>
@@ -139,7 +140,7 @@ int main() {
     };
 
     // Reserved memory for CANopen stack usage
-    uint8_t sdoBuffer[1][CO_SDO_BUF_BYTE];
+    uint8_t sdoBuffer[CO_SSDO_N * CO_SDO_BUF_BYTE];
     CO_TMR_MEM appTmrMem[4];
 
     // Attempt to join the CAN network
@@ -182,6 +183,51 @@ int main() {
     CONodeStart(&canNode);
 
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Entering loop");
+    EVT::core::platform::init();
+
+    //create the TPDO node
+    TPDOCanNode testCanNode;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Setup CAN configuration, this handles making drivers, applying settings.
+    // And generally creating the CANopen stack node which is the interface
+    // between the application (the code we write) and the physical CAN network
+    ///////////////////////////////////////////////////////////////////////////
+
+    // Will store CANopen messages that will be populated by the EVT-core CAN
+    // interrupt
+
+
+    // Initialize CAN, add an IRQ which will add messages to the queue above
+    can.addIRQHandler(canInterrupt, reinterpret_cast<void*>(&canOpenQueue));
+
+
+
+
+    //test that the board is connected to the can network
+    if (result != IO::CAN::CANStatus::OK) {
+        uart.printf("Failed to connect to CAN network\r\n");
+        return 1;
+    }
+
+    // Initialize all the CANOpen drivers.
+    IO::initializeCANopenDriver(&canOpenQueue, &can, &timer, &canStackDriver, &nvmDriver, &timerDriver, &canDriver);
+
+    // Initialize the CANOpen node we are using.
+    IO::initializeCANopenNode(&canNode, &testCanNode, &canStackDriver, sdoBuffer, appTmrMem);
+
+    // Set the node to operational mode
+    CONmtSetMode(&canNode.Nmt, CO_OPERATIONAL);
+
+    time::wait(500);
+
+    //print any CANopen errors
+    uart.printf("Error: %d\r\n", CONodeGetErr(&canNode));
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Main loop
+    ///////////////////////////////////////////////////////////////////////////
 
     while (1) {
         // Update the thermistor temperatures
