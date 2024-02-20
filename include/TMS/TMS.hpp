@@ -19,7 +19,7 @@ namespace IO = EVT::core::IO;
 
 namespace TMS {
 
-class TMS {
+class TMS : public CANDevice {
 public:
     /**
      * Construct a TMS instance
@@ -45,19 +45,11 @@ public:
      */
     void updateTemps();
 
-    /**
-     * Get a pointer to the start of the CANopen object dictionary.
-     *
-     * @return Pointer to the start of the CANopen object dictionary.
-     */
-    CO_OBJ_T* getObjectDictionary();
+    CO_OBJ_T* getObjectDictionary() override;
 
-    /**
-     * Get the number of elements in the object dictionary.
-     *
-     * @return The number of elements in the object dictionary
-     */
-    uint16_t getObjectDictionarySize();
+    uint8_t getNumElements() override;
+
+    uint8_t getNodeID() override;
 
     /**
      * Update fan and pump speeds
