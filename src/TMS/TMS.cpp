@@ -14,8 +14,11 @@ void TMS::updateTemps() {
 CO_OBJ_T* TMS::getObjectDictionary() {
     return &objectDictionary[0];
 }
-uint16_t TMS::getObjectDictionarySize() {
+uint8_t TMS::getNumElements() {
     return OBJECT_DICTIONARY_SIZE;
+}
+uint8_t TMS::getNodeID() {
+    return TMS::NODE_ID;
 }
 
 void TMS::process(RadiatorFan* fans, HeatPump pump) {

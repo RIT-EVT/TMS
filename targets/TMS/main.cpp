@@ -8,7 +8,6 @@
 #include <EVT/manager.hpp>
 #include <EVT/utils/log.hpp>
 #include <EVT/utils/types/FixedQueue.hpp>
-
 #include <TMS/TMS.hpp>
 #include <TMS/dev/HeatPump.hpp>
 #include <TMS/dev/I2CDevice.hpp>
@@ -53,54 +52,18 @@ void handleNMT(IO::CANMessage& message) {
  *
  * @param priv[in] The private data (FixedQueue<CANOPEN_QUEUE_SIZE, CANMessage>)
  */
-void canInterruptHandler(IO::CANMessage& message, void* priv) {
-    //    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
+void canInterrupt(IO::CANMessage& message, void* priv) {
+    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
 
     // Handle NMT messages
     if (message.getId() == 0) {
         handleNMT(message);
         return;
     }
-
     auto* queue = (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
-    if (queue == nullptr)
-        return;
-    if (!message.isCANExtended())
+    if (queue != nullptr)
         queue->append(message);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// CANopen specific Callbacks. Need to be defined in some location
-///////////////////////////////////////////////////////////////////////////////
-extern "C" void CONodeFatalError(void) {
-    log::LOGGER.log(log::Logger::LogLevel::ERROR, "Fatal CANopen error");
-}
-
-extern "C" void COIfCanReceive(CO_IF_FRM* frm) {}
-
-extern "C" int16_t COLssStore(uint32_t baudrate, uint8_t nodeId) { return 0; }
-
-extern "C" int16_t COLssLoad(uint32_t* baudrate, uint8_t* nodeId) { return 0; }
-
-extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {
-    log::LOGGER.log(log::Logger::LogLevel::INFO, "Network Management state changed.");
-}
-
-extern "C" void CONmtHbConsEvent(CO_NMT* nmt, uint8_t nodeId) {}
-
-extern "C" void CONmtHbConsChange(CO_NMT* nmt, uint8_t nodeId, CO_MODE mode) {}
-
-extern "C" int16_t COParaDefault(CO_PARA* pg) { return 0; }
-
-extern "C" void COPdoTransmit(CO_IF_FRM* frm) {}
-
-extern "C" int16_t COPdoReceive(CO_IF_FRM* frm) { return 0; }
-
-extern "C" void COPdoSyncUpdate(CO_RPDO* pdo) {}
-
-extern "C" void COTmrLock(void) {}
-
-extern "C" void COTmrUnlock(void) {}
 
 int main() {
     // Initialize system
@@ -111,7 +74,7 @@ int main() {
 
     // Initialize CAN, add an IRQ that will populate the above queue
     IO::CAN& can = IO::getCAN<IO::Pin::PA_12, IO::Pin::PA_11>();
-    can.addIRQHandler(canInterruptHandler, reinterpret_cast<void*>(&canOpenQueue));
+    can.addIRQHandler(canInterrupt, reinterpret_cast<void*>(&canOpenQueue));
 
     // Initialize the timer
     DEV::Timer& timer = DEV::getTimer<DEV::MCUTimer::Timer16>(100);
@@ -173,16 +136,8 @@ int main() {
     };
 
     // Reserved memory for CANopen stack usage
-    uint8_t sdoBuffer[1][CO_SDO_BUF_BYTE];
-    CO_TMR_MEM appTmrMem[4];
-
-    // Attempt to join the CAN network
-    IO::CAN::CANStatus result = can.connect();
-
-    if (result != IO::CAN::CANStatus::OK) {
-        uart.printf("Failed to connect to CAN network\r\n");
-        return 1;
-    }
+    uint8_t sdoBuffer[CO_SSDO_N * CO_SDO_BUF_BYTE];
+    CO_TMR_MEM appTmrMem[16];
 
     // Make drivers
     CO_IF_DRV canStackDriver;
@@ -191,31 +146,23 @@ int main() {
     CO_IF_TIMER_DRV timerDriver;
     CO_IF_NVM_DRV nvmDriver;
 
-    IO::getCANopenCANDriver(&can, &canOpenQueue, &canDriver);
-    IO::getCANopenTimerDriver(&timer, &timerDriver);
-    IO::getCANopenNVMDriver(&nvmDriver);
+    IO::CAN::CANStatus result = can.connect();
 
-    canStackDriver.Can = &canDriver;
-    canStackDriver.Timer = &timerDriver;
-    canStackDriver.Nvm = &nvmDriver;
+    //test that the board is connected to the can network
+    if (result != IO::CAN::CANStatus::OK) {
+        uart.printf("Failed to connect to CAN network\r\n");
+        return 1;
+    }
 
-    CO_NODE_SPEC canSpec = {
-        .NodeId = TMS::TMS::NODE_ID,
-        .Baudrate = IO::CAN::DEFAULT_BAUD,
-        .Dict = tms.getObjectDictionary(),
-        .DictLen = tms.getObjectDictionarySize(),
-        .EmcyCode = nullptr,
-        .TmrMem = appTmrMem,
-        .TmrNum = 16,
-        .TmrFreq = 100,
-        .Drv = &canStackDriver,
-        .SdoBuf = reinterpret_cast<uint8_t*>(&sdoBuffer[0]),
-    };
+    // Initialize all the CANOpen drivers.
+    IO::initializeCANopenDriver(&canOpenQueue, &can, &timer, &canStackDriver, &nvmDriver, &timerDriver, &canDriver);
 
-    CONodeInit(&canNode, &canSpec);
-    CONodeStart(&canNode);
+    // Initialize the CANOpen node we are using.
+    IO::initializeCANopenNode(&canNode, &tms, &canStackDriver, sdoBuffer, appTmrMem);
 
-    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Entering loop");
+    ///////////////////////////////////////////////////////////////////////////
+    // Main loop
+    ///////////////////////////////////////////////////////////////////////////
 
     while (1) {
         // Update the thermistor temperatures
