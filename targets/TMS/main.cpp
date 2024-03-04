@@ -23,29 +23,7 @@ namespace log = EVT::core::log;
 // Global CAN Node reference
 CO_NODE canNode;
 
-void handleNMT(IO::CANMessage& message) {
-    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Network Management message recognized.");
-    uint8_t* payload = message.getPayload();
-    uint8_t targetID = payload[1];
-    if (targetID == TMS::TMS::NODE_ID || targetID == 0x00) {
-        CO_MODE mode;
-        switch (payload[0]) {
-        case 0x01:
-            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Operational");
-            mode = CO_OPERATIONAL;
-            break;
-        case 0x80:
-            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Preoperational");
-            mode = CO_PREOP;
-            break;
-        default:
-            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Invalid");
-            mode = CO_INVALID;
-        }
-        if (canNode.Nmt.Mode != mode)
-            CONmtSetMode(&canNode.Nmt, mode);
-    }
-}
+
 
 /**
  * Interrupt handler for incoming CAN messages.
@@ -55,14 +33,14 @@ void handleNMT(IO::CANMessage& message) {
 void canInterrupt(IO::CANMessage& message, void* priv) {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
 
-    // Handle NMT messages
-    if (message.getId() == 0) {
-        handleNMT(message);
-        return;
-    }
     auto* queue = (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
     if (queue != nullptr)
         queue->append(message);
+
+}
+
+extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {
+    tms.setMode(mode);
 }
 
 int main() {
@@ -166,7 +144,7 @@ int main() {
 
     while (1) {
         // Update the thermistor temperatures
-        tms.updateTemps();
+        tms.process();
         // Process incoming CAN messages
         CONodeProcess(&canNode);
 
@@ -187,7 +165,7 @@ int main() {
             COTmrProcess(&canNode.Tmr);
 
             // Activate the pump and fans -- will be replaced with more advanced cooling logic later
-            tms.process(fans, pump);
+            tms.setCooling(fans, pump); //rename
             break;
         default:
             log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");

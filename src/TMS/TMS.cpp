@@ -2,13 +2,39 @@
 
 namespace TMS {
 
+CO_NODE canNode;
+
 uint16_t TMS::sensorTemps[NUM_TEMP_SENSORS] = {};
 
 TMS::TMS(TCA9545A& tca9545A) : tca9545A(tca9545A) {}
 
-void TMS::updateTemps() {
+void TMS::process() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Updating Temps");
     tca9545A.pollDevices();
+
+    //switch case
+    switch (CONmtGetMode(&canNode.Nmt)) {
+        // Auxiliary Mode
+        case CO_PREOP:
+            // Turn the pump and fans off
+            pump.stop();
+            for (TMS::RadiatorFan fan : fans) {
+                fan.setSpeed(0);
+            }
+            break;
+        // Operational Mode
+        case CO_OPERATIONAL:
+            // Update the state of timer based events
+            COTmrService(&canNode.Tmr);
+            // Handle executing timer events that have elapsed
+            COTmrProcess(&canNode.Tmr);
+
+            // Activate the pump and fans -- will be replaced with more advanced cooling logic later
+           // TMS:setCooling(fans, pump);//rename
+            break;
+        default:
+            log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
+        }
 }
 
 CO_OBJ_T* TMS::getObjectDictionary() {
@@ -21,9 +47,9 @@ uint8_t TMS::getNodeID() {
     return TMS::NODE_ID;
 }
 
-void TMS::process(RadiatorFan* fans, HeatPump pump) {
+void TMS::setCooling(RadiatorFan* fans, HeatPump pump) {
     RadiatorFan fan1 = fans[0];
-    //    RadiatorFan fan2 = fans[1];
+    //RadiatorFan fan2 = fans[1];
 
     uint16_t highestTemp = 0;
     for (uint8_t i = 1; i < 4; i++) {

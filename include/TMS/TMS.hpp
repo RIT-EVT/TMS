@@ -43,7 +43,7 @@ public:
     /**
      * Update the saved thermistor temperature values with the latest data from the thermistors
      */
-    void updateTemps();
+    void process();
 
     CO_OBJ_T* getObjectDictionary() override;
 
@@ -58,7 +58,7 @@ public:
      * @param fans Array of radiator fan instances
      * @param pump Heat pump
      */
-    void process(RadiatorFan* fans, HeatPump pump);
+    void setCooling(RadiatorFan* fans, HeatPump pump);
 
 private:
     /**
