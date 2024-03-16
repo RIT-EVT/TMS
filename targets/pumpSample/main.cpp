@@ -6,8 +6,8 @@
 #include <EVT/io/pin.hpp>
 #include <EVT/manager.hpp>
 #include <EVT/utils/time.hpp>
-#include <dev/HeatPump.hpp>
 #include <cstdlib>
+#include <dev/HeatPump.hpp>
 
 namespace IO = EVT::core::IO;
 namespace time = EVT::core::time;
