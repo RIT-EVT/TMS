@@ -2,40 +2,10 @@
 
 namespace TMS {
 
-CO_NODE canNode;
-
 uint16_t TMS::sensorTemps[NUM_TEMP_SENSORS] = {};
 
-TMS::TMS(TCA9545A& tca9545A) : tca9545A(tca9545A) {}
-
-void TMS::process() {
-    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Updating Temps");
-    tca9545A.pollDevices();
-
-    //switch case
-    switch (CONmtGetMode(&canNode.Nmt)) {
-        // Auxiliary Mode
-        case CO_PREOP:
-            // Turn the pump and fans off
-            pump.stop();
-            for (TMS::RadiatorFan fan : fans) {
-                fan.setSpeed(0);
-            }
-            break;
-        // Operational Mode
-        case CO_OPERATIONAL:
-            // Update the state of timer based events
-            COTmrService(&canNode.Tmr);
-            // Handle executing timer events that have elapsed
-            COTmrProcess(&canNode.Tmr);
-
-            // Activate the pump and fans -- will be replaced with more advanced cooling logic later
-           // TMS:setCooling(fans, pump);//rename
-            break;
-        default:
-            log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
-        }
-}
+TMS::TMS(TCA9545A& tca9545A, HeatPump pump, RadiatorFan fans[2]) : tca9545A(tca9545A), pump(pump),
+                                                                   fans{fans[0], fans[1]} {}
 
 CO_OBJ_T* TMS::getObjectDictionary() {
     return &objectDictionary[0];
@@ -47,7 +17,36 @@ uint8_t TMS::getNodeID() {
     return TMS::NODE_ID;
 }
 
-void TMS::setCooling(RadiatorFan* fans, HeatPump pump) {
+void TMS::process() {
+    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Updating Temps");
+    tca9545A.pollDevices();
+
+    switch (mode) {
+    // Auxiliary Mode
+    case CO_PREOP:
+        // Turn the pump and fans off
+        pump.stop();
+        for (RadiatorFan fan : fans) {
+            fan.setSpeed(0);
+        }
+
+        break;
+    // Operational Mode
+    case CO_OPERATIONAL:
+        // Set the cooling controls
+        setCooling();
+
+        break;
+    default:
+        log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
+    }
+}
+
+void TMS::setMode(CO_MODE newMode){
+    mode = newMode;
+}
+
+void TMS::setCooling() {
     RadiatorFan fan1 = fans[0];
     //RadiatorFan fan2 = fans[1];
 

@@ -26,7 +26,7 @@ public:
      *
      * @param tca9545A I2C MUX instance to use for getting temp sensor data
      */
-    explicit TMS(TCA9545A& tca9545A);
+    TMS(TCA9545A& tca9545A, HeatPump pump, RadiatorFan fans[2]);
 
     /**
      * Array to store the thermistor values
@@ -35,16 +35,6 @@ public:
      */
     static uint16_t sensorTemps[NUM_TEMP_SENSORS];
 
-    /**
-     * The node ID used to identify the device on the CAN network.
-     */
-    static constexpr uint8_t NODE_ID = 0x08;
-
-    /**
-     * Update the saved thermistor temperature values with the latest data from the thermistors
-     */
-    void process();
-
     CO_OBJ_T* getObjectDictionary() override;
 
     uint8_t getNumElements() override;
@@ -52,38 +42,45 @@ public:
     uint8_t getNodeID() override;
 
     /**
-     * Update fan and pump speeds
-     * TODO: Modify to meet EVT standards
-     *
-     * @param fans Array of radiator fan instances
-     * @param pump Heat pump
+     * Update temperatures and apply cooling loop controls
      */
-    void setCooling(RadiatorFan* fans, HeatPump pump);
+    void process();
+
+    /**
+     * Set current NMT mode
+     *
+     * @param newMode New NMT mode
+     */
+    void setMode(CO_MODE newMode);
 
 private:
-    /**
-     * TCA9545A instance
-     */
+    /** The node ID used to identify the device on the CAN network */
+    static constexpr uint8_t NODE_ID = 0x08;
+    /** Current NMT Mode */
+    CO_MODE mode = CO_PREOP;
+
+    /** TCA9545A instance */
     TCA9545A& tca9545A;
+    /** Heat pump instance */
+    HeatPump pump;
+    /** Radiator fan instances */
+    RadiatorFan fans[2];
 
-    /**
-     * Current heat pump speed
-     */
+    /** Current heat pump speed */
     uint8_t pumpSpeed = 0;
-
-    /**
-     * Fan 1 speed
-     */
+    /** Fan 1 speed */
     uint8_t fan1Speed = 0;
-
-    /**
-     * Fan 2 speed
-     */
+    /** Fan 2 speed */
     uint8_t fan2Speed = 0;
 
     /**
+     * Update fan and pump speeds
+     */
+    void setCooling();
+
+    /**
      * Have to know the size of the object dictionary for initialization
-     * process.
+     * process
      */
     static constexpr uint16_t OBJECT_DICTIONARY_SIZE = 41;
 

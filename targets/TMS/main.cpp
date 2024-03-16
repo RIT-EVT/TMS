@@ -20,11 +20,6 @@ namespace DEV = EVT::core::DEV;
 namespace time = EVT::core::time;
 namespace log = EVT::core::log;
 
-// Global CAN Node reference
-CO_NODE canNode;
-
-
-
 /**
  * Interrupt handler for incoming CAN messages.
  *
@@ -34,13 +29,15 @@ void canInterrupt(IO::CANMessage& message, void* priv) {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
 
     auto* queue = (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
-    if (queue != nullptr)
+    if (queue != nullptr) {
         queue->append(message);
-
+    }
 }
 
+// TODO: Eliminate this global variable
+TMS::TMS* tmsPtr = nullptr;
 extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {
-    tms.setMode(mode);
+    tmsPtr->setMode(mode);
 }
 
 int main() {
@@ -64,8 +61,6 @@ int main() {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Logger initialized.");
     timer.stopTimer();
 
-    TMS::HeatPump pump(IO::getPWM<IO::Pin::PA_6>());
-
     IO::I2C& i2c = IO::getI2C<IO::Pin::PB_8, IO::Pin::PB_9>();
 
     //array storing I2CDevices
@@ -86,7 +81,7 @@ int main() {
     buses[2] = bus2;
     buses[3] = bus3;
 
-    //TODO: figure out why stuff is "implicitly deleted"
+    // TODO: figure out why stuff is "implicitly deleted"
     // Set up TMS and necessary device drivers
     TMS::TMP117 tmpDevices[4];
 
@@ -105,13 +100,17 @@ int main() {
     uint8_t numDevices[4] = {0, 2, 1, 0};
 
     TMS::TCA9545A tca(i2c, 0x70, reinterpret_cast<TMS::I2CDevice***>(buses), numDevices);
-    TMS::TMS tms(tca);
+
+    TMS::HeatPump pump(IO::getPWM<IO::Pin::PA_6>());
 
     TMS::RadiatorFan fans[1] = {
         TMS::RadiatorFan(IO::getPWM<IO::Pin::PA_0>(),
                          IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT),
                          IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT)),
     };
+
+    TMS::TMS tms(tca, pump, fans);
+    tmsPtr = &tms;
 
     // Reserved memory for CANopen stack usage
     uint8_t sdoBuffer[CO_SSDO_N * CO_SDO_BUF_BYTE];
@@ -123,6 +122,8 @@ int main() {
     CO_IF_CAN_DRV canDriver;
     CO_IF_TIMER_DRV timerDriver;
     CO_IF_NVM_DRV nvmDriver;
+
+    CO_NODE canNode;
 
     IO::CAN::CANStatus result = can.connect();
 
@@ -145,31 +146,8 @@ int main() {
     while (1) {
         // Update the thermistor temperatures
         tms.process();
-        // Process incoming CAN messages
-        CONodeProcess(&canNode);
 
-        switch (CONmtGetMode(&canNode.Nmt)) {
-        // Auxiliary Mode
-        case CO_PREOP:
-            // Turn the pump and fans off
-            pump.stop();
-            for (TMS::RadiatorFan fan : fans) {
-                fan.setSpeed(0);
-            }
-            break;
-        // Operational Mode
-        case CO_OPERATIONAL:
-            // Update the state of timer based events
-            COTmrService(&canNode.Tmr);
-            // Handle executing timer events that have elapsed
-            COTmrProcess(&canNode.Tmr);
-
-            // Activate the pump and fans -- will be replaced with more advanced cooling logic later
-            tms.setCooling(fans, pump); //rename
-            break;
-        default:
-            log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
-        }
+        IO::processCANopenNode(&canNode);
 
         time::wait(250);
     }
