@@ -1,7 +1,6 @@
 /**
  * This is the primary file for running the Thermal Management System.
  */
-#include <TMS.hpp>
 #include <EVT/io/CANopen.hpp>
 #include <EVT/io/UART.hpp>
 #include <EVT/io/pin.hpp>
@@ -9,6 +8,7 @@
 #include <EVT/manager.hpp>
 #include <EVT/utils/log.hpp>
 #include <EVT/utils/types/FixedQueue.hpp>
+#include <TMS.hpp>
 #include <dev/HeatPump.hpp>
 #include <dev/I2CDevice.hpp>
 #include <dev/RadiatorFan.hpp>

@@ -1,5 +1,5 @@
-#include <dev/TMP117.hpp>
 #include <EVT/io/I2C.hpp>
+#include <dev/TMP117.hpp>
 
 namespace TMS {
 
