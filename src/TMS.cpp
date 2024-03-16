@@ -42,7 +42,7 @@ void TMS::process() {
     }
 }
 
-void TMS::setMode(CO_MODE newMode){
+void TMS::setMode(CO_MODE newMode) {
     mode = newMode;
 }
 
