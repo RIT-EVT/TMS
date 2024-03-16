@@ -20,9 +20,17 @@ namespace DEV = EVT::core::DEV;
 namespace time = EVT::core::time;
 namespace log = EVT::core::log;
 
+///////////////////////////////////////////////////////////////////////////////
+// EVT-core CAN callback and CAN setup. This will include logic to set
+// aside CANopen messages into a specific queue
+///////////////////////////////////////////////////////////////////////////////
+
 /**
- * Interrupt handler for incoming CAN messages.
+ * Interrupt handler to get CAN messages. A function pointer to this function
+ * will be passed to the EVT-core CAN interface which will in turn call this
+ * function each time a new CAN message comes in.
  *
+ * @param message[in] The passed in CAN message that was read.
  * @param priv[in] The private data (FixedQueue<CANOPEN_QUEUE_SIZE, CANMessage>)
  */
 void canInterrupt(IO::CANMessage& message, void* priv) {
@@ -36,6 +44,7 @@ void canInterrupt(IO::CANMessage& message, void* priv) {
 
 // TODO: Eliminate this global variable
 TMS::TMS* tmsPtr = nullptr;
+// Keep the TMS instance up-to-date with the NMT mode
 extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {
     tmsPtr->setMode(mode);
 }
@@ -44,22 +53,11 @@ int main() {
     // Initialize system
     EVT::core::platform::init();
 
-    // Queue that will store CANopen messages
-    EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage> canOpenQueue;
-
-    // Initialize CAN, add an IRQ that will populate the above queue
-    IO::CAN& can = IO::getCAN<IO::Pin::PA_12, IO::Pin::PA_11>();
-    can.addIRQHandler(canInterrupt, reinterpret_cast<void*>(&canOpenQueue));
-
-    // Initialize the timer
-    DEV::Timer& timer = DEV::getTimer<DEV::MCUTimer::Timer16>(100);
-
     // Set up Logger
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
     log::LOGGER.setUART(&uart);
     log::LOGGER.setLogLevel(log::Logger::LogLevel::DEBUG);
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Logger initialized.");
-    timer.stopTimer();
 
     IO::I2C& i2c = IO::getI2C<IO::Pin::PB_8, IO::Pin::PB_9>();
 
@@ -112,6 +110,22 @@ int main() {
     TMS::TMS tms(tca, pump, fans);
     tmsPtr = &tms;
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Setup CAN configuration, this handles making drivers, applying settings.
+    // And generally creating the CANopen stack node which is the interface
+    // between the application (the code we write) and the physical CAN network
+    ///////////////////////////////////////////////////////////////////////////
+
+    // Initialize the timer
+    DEV::Timer& timer = DEV::getTimer<DEV::MCUTimer::Timer16>(100);
+
+    // Queue that will store CANopen messages
+    EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage> canOpenQueue;
+
+    // Initialize CAN, add an IRQ that will populate the above queue
+    IO::CAN& can = IO::getCAN<IO::Pin::PA_12, IO::Pin::PA_11>();
+    can.addIRQHandler(canInterrupt, reinterpret_cast<void*>(&canOpenQueue));
+
     // Reserved memory for CANopen stack usage
     uint8_t sdoBuffer[CO_SSDO_N * CO_SDO_BUF_BYTE];
     CO_TMR_MEM appTmrMem[16];
@@ -125,11 +139,10 @@ int main() {
 
     CO_NODE canNode;
 
+    // Test that the board is connected to the can network
     IO::CAN::CANStatus result = can.connect();
-
-    //test that the board is connected to the can network
     if (result != IO::CAN::CANStatus::OK) {
-        uart.printf("Failed to connect to CAN network\r\n");
+        log::LOGGER.log(log::Logger::LogLevel::ERROR, "Failed to connect to CAN network");
         return 1;
     }
 
@@ -139,16 +152,19 @@ int main() {
     // Initialize the CANOpen node we are using.
     IO::initializeCANopenNode(&canNode, &tms, &canStackDriver, sdoBuffer, appTmrMem);
 
+    // Print any CANopen errors
+    CO_ERR err = CONodeGetErr(&canNode);
+    if (err != CO_ERR_NONE) {
+        log::LOGGER.log(log::Logger::LogLevel::ERROR, "CANopen Error: %d", err);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Main loop
     ///////////////////////////////////////////////////////////////////////////
 
     while (1) {
-        // Update the thermistor temperatures
         tms.process();
-
         IO::processCANopenNode(&canNode);
-
         time::wait(250);
     }
 }
