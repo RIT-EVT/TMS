@@ -2,7 +2,7 @@
 #define TMS_TCA9545A_HPP
 
 #include <EVT/io/I2C.hpp>
-#include <TMS/dev/I2CDevice.hpp>
+#include <dev/I2CDevice.hpp>
 #include <cstddef>
 
 #define I2C_MUX_BUS_SIZE 4

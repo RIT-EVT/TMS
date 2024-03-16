@@ -6,10 +6,10 @@
 #include <EVT/io/CANOpenMacros.hpp>
 #include <EVT/io/GPIO.hpp>
 #include <EVT/utils/log.hpp>
-#include <TMS/dev/HeatPump.hpp>
-#include <TMS/dev/RadiatorFan.hpp>
-#include <TMS/dev/TCA9545A.hpp>
 #include <co_core.h>
+#include <dev/HeatPump.hpp>
+#include <dev/RadiatorFan.hpp>
+#include <dev/TCA9545A.hpp>
 
 #define NUM_TEMP_SENSORS 4
 

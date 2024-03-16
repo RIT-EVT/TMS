@@ -1,4 +1,4 @@
-#include <TMS/TMS.hpp>
+#include <TMS.hpp>
 
 namespace TMS {
 

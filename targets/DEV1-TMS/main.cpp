@@ -1,6 +1,7 @@
 /**
  * This is the primary file for running the Thermal Management System.
  */
+#include <TMS.hpp>
 #include <EVT/io/CANopen.hpp>
 #include <EVT/io/UART.hpp>
 #include <EVT/io/pin.hpp>
@@ -8,12 +9,11 @@
 #include <EVT/manager.hpp>
 #include <EVT/utils/log.hpp>
 #include <EVT/utils/types/FixedQueue.hpp>
-#include <TMS/TMS.hpp>
-#include <TMS/dev/HeatPump.hpp>
-#include <TMS/dev/I2CDevice.hpp>
-#include <TMS/dev/RadiatorFan.hpp>
-#include <TMS/dev/TMP117.hpp>
-#include <TMS/dev/TMP117I2CDevice.hpp>
+#include <dev/HeatPump.hpp>
+#include <dev/I2CDevice.hpp>
+#include <dev/RadiatorFan.hpp>
+#include <dev/TMP117.hpp>
+#include <dev/TMP117I2CDevice.hpp>
 
 namespace IO = EVT::core::IO;
 namespace DEV = EVT::core::DEV;

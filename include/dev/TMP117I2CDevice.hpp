@@ -2,8 +2,8 @@
 #define TMS_TMP117I2CDEVICE_HPP
 
 #include <EVT/io/I2C.hpp>
-#include <TMS/dev/I2CDevice.hpp>
-#include <TMS/dev/TMP117.hpp>
+#include <dev/I2CDevice.hpp>
+#include <dev/TMP117.hpp>
 
 namespace TMS {
 
