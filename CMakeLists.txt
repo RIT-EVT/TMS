@@ -45,6 +45,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/dev/RadiatorFan.cpp
         src/dev/TMP117.cpp
         src/dev/TCA9545A.cpp
+        src/models/DEV1ThermalModel.cpp
         )
 
 ###############################################################################

@@ -10,6 +10,7 @@
 #include <dev/HeatPump.hpp>
 #include <dev/RadiatorFan.hpp>
 #include <dev/TCA9545A.hpp>
+#include <models/DEV1ThermalModel.h>
 
 #define NUM_TEMP_SENSORS 4
 
@@ -66,6 +67,9 @@ private:
     /** Radiator fan instances */
     RadiatorFan fans[2];
 
+    /** Thermal model instance */
+    DEV1ThermalModel thermalModel;
+
     /** Current heat pump speed */
     uint8_t pumpSpeed = 0;
     /** Fan 1 speed */
@@ -76,7 +80,7 @@ private:
     /**
      * Update fan and pump speeds
      */
-    void setCooling();
+    void applyThermalModel();
 
     /**
      * Have to know the size of the object dictionary for initialization

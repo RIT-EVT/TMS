@@ -34,7 +34,7 @@ void TMS::process() {
     // Operational Mode
     case CO_OPERATIONAL:
         // Set the cooling controls
-        setCooling();
+        applyThermalModel();
 
         break;
     default:
@@ -46,49 +46,28 @@ void TMS::setMode(CO_MODE newMode) {
     mode = newMode;
 }
 
-void TMS::setCooling() {
-    RadiatorFan fan1 = fans[0];
-    //RadiatorFan fan2 = fans[1];
+void TMS::applyThermalModel() {
+    // Initialize the input struct
+    DEV1ThermalModel::ExtU_DEV1ThermalModel_T inputs = {
+        .temp1 = sensorTemps[1],
+        .temp2 = sensorTemps[2],
+        .boardTemp = sensorTemps[0],
+    };
 
-    uint16_t highestTemp = 0;
-    for (uint8_t i = 1; i < 4; i++) {
-        uint16_t temp = sensorTemps[i];
-        if (temp > highestTemp) {
-            highestTemp = temp;
-        }
-    }
-    highestTemp /= 100;
-    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Highest Temp: %d\r\n", highestTemp);
+    // Run the model
+    thermalModel.setExternalInputs(&inputs);
+    thermalModel.step();
+    DEV1ThermalModel::ExtY_DEV1ThermalModel_T outputs = thermalModel.getExternalOutputs();
 
-    if (highestTemp >= 50) {
-        // COOL_LEVEL_MAX
-        log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: COOL_LEVEL_MAX");
-        pumpSpeed = 100;
-        fan1Speed = 100;
-        fan2Speed = 100;
-    } else if (highestTemp >= 40) {
-        // COOL_LEVEL_2
-        log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: COOL_LEVEL_2");
-        pumpSpeed = 75;
-        fan1Speed = 75;
-        fan2Speed = 75;
-    } else if (highestTemp >= 30) {
-        // COOL_LEVEL_1
-        log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: COOL_LEVEL_1");
-        pumpSpeed = 50;
-        fan1Speed = 50;
-        fan2Speed = 50;
-    } else {
-        // IDLE
-        log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Setting Level: IDLE");
-        pumpSpeed = 50;
-        fan1Speed = 0;
-        fan2Speed = 0;
-    }
+    // Extract the outputs
+    pumpSpeed = outputs.pumpSpeed;
+    fan1Speed = outputs.fanSpeed1;
+    fan2Speed = outputs.fanSpeed2;
 
+    // Command devices to execute the control policy
     pump.setSpeed(pumpSpeed);
-    fan1.setSpeed(fan1Speed);
-    //    fan2.setSpeed(fan2Speed);
+    fans[0].setSpeed(fan1Speed);
+    //fans[1].setSpeed(fan2Speed);
 }
 
 }// namespace TMS
