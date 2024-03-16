@@ -1,4 +1,4 @@
-#include <TMS/dev/TMP117I2CDevice.hpp>
+#include <dev/TMP117I2CDevice.hpp>
 
 namespace TMS {
 

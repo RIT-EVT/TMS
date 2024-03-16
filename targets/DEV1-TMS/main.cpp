@@ -8,85 +8,56 @@
 #include <EVT/manager.hpp>
 #include <EVT/utils/log.hpp>
 #include <EVT/utils/types/FixedQueue.hpp>
-#include <TMS/TMS.hpp>
-#include <TMS/dev/HeatPump.hpp>
-#include <TMS/dev/I2CDevice.hpp>
-#include <TMS/dev/RadiatorFan.hpp>
-#include <TMS/dev/TMP117.hpp>
-#include <TMS/dev/TMP117I2CDevice.hpp>
+#include <TMS.hpp>
+#include <dev/HeatPump.hpp>
+#include <dev/I2CDevice.hpp>
+#include <dev/RadiatorFan.hpp>
+#include <dev/TMP117.hpp>
+#include <dev/TMP117I2CDevice.hpp>
 
 namespace IO = EVT::core::IO;
 namespace DEV = EVT::core::DEV;
 namespace time = EVT::core::time;
 namespace log = EVT::core::log;
 
-// Global CAN Node reference
-CO_NODE canNode;
-
-void handleNMT(IO::CANMessage& message) {
-    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Network Management message recognized.");
-    uint8_t* payload = message.getPayload();
-    uint8_t targetID = payload[1];
-    if (targetID == TMS::TMS::NODE_ID || targetID == 0x00) {
-        CO_MODE mode;
-        switch (payload[0]) {
-        case 0x01:
-            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Operational");
-            mode = CO_OPERATIONAL;
-            break;
-        case 0x80:
-            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Preoperational");
-            mode = CO_PREOP;
-            break;
-        default:
-            log::LOGGER.log(log::Logger::LogLevel::DEBUG, "NMT State: Invalid");
-            mode = CO_INVALID;
-        }
-        if (canNode.Nmt.Mode != mode)
-            CONmtSetMode(&canNode.Nmt, mode);
-    }
-}
+///////////////////////////////////////////////////////////////////////////////
+// EVT-core CAN callback and CAN setup. This will include logic to set
+// aside CANopen messages into a specific queue
+///////////////////////////////////////////////////////////////////////////////
 
 /**
- * Interrupt handler for incoming CAN messages.
+ * Interrupt handler to get CAN messages. A function pointer to this function
+ * will be passed to the EVT-core CAN interface which will in turn call this
+ * function each time a new CAN message comes in.
  *
+ * @param message[in] The passed in CAN message that was read.
  * @param priv[in] The private data (FixedQueue<CANOPEN_QUEUE_SIZE, CANMessage>)
  */
 void canInterrupt(IO::CANMessage& message, void* priv) {
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
 
-    // Handle NMT messages
-    if (message.getId() == 0) {
-        handleNMT(message);
-        return;
-    }
     auto* queue = (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
-    if (queue != nullptr)
+    if (queue != nullptr) {
         queue->append(message);
+    }
+}
+
+// TODO: Eliminate this global variable
+TMS::TMS* tmsPtr = nullptr;
+// Keep the TMS instance up-to-date with the NMT mode
+extern "C" void CONmtModeChange(CO_NMT* nmt, CO_MODE mode) {
+    tmsPtr->setMode(mode);
 }
 
 int main() {
     // Initialize system
     EVT::core::platform::init();
 
-    // Queue that will store CANopen messages
-    EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage> canOpenQueue;
-
-    // Initialize CAN, add an IRQ that will populate the above queue
-    IO::CAN& can = IO::getCAN<IO::Pin::PA_12, IO::Pin::PA_11>();
-    can.addIRQHandler(canInterrupt, reinterpret_cast<void*>(&canOpenQueue));
-
-    // Initialize the timer
-    DEV::Timer& timer = DEV::getTimer<DEV::MCUTimer::Timer16>(100);
-
     // Set up Logger
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
     log::LOGGER.setUART(&uart);
     log::LOGGER.setLogLevel(log::Logger::LogLevel::DEBUG);
     log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Logger initialized.");
-    timer.stopTimer();
-
-    TMS::HeatPump pump(IO::getPWM<IO::Pin::PA_6>());
 
     IO::I2C& i2c = IO::getI2C<IO::Pin::PB_8, IO::Pin::PB_9>();
 
@@ -108,7 +79,7 @@ int main() {
     buses[2] = bus2;
     buses[3] = bus3;
 
-    //TODO: figure out why stuff is "implicitly deleted"
+    // TODO: figure out why stuff is "implicitly deleted"
     // Set up TMS and necessary device drivers
     TMS::TMP117 tmpDevices[4];
 
@@ -127,13 +98,33 @@ int main() {
     uint8_t numDevices[4] = {0, 2, 1, 0};
 
     TMS::TCA9545A tca(i2c, 0x70, reinterpret_cast<TMS::I2CDevice***>(buses), numDevices);
-    TMS::TMS tms(tca);
+
+    TMS::HeatPump pump(IO::getPWM<IO::Pin::PA_6>());
 
     TMS::RadiatorFan fans[1] = {
         TMS::RadiatorFan(IO::getPWM<IO::Pin::PA_0>(),
                          IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT),
                          IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT)),
     };
+
+    TMS::TMS tms(tca, pump, fans);
+    tmsPtr = &tms;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Setup CAN configuration, this handles making drivers, applying settings.
+    // And generally creating the CANopen stack node which is the interface
+    // between the application (the code we write) and the physical CAN network
+    ///////////////////////////////////////////////////////////////////////////
+
+    // Initialize the timer
+    DEV::Timer& timer = DEV::getTimer<DEV::MCUTimer::Timer16>(100);
+
+    // Queue that will store CANopen messages
+    EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage> canOpenQueue;
+
+    // Initialize CAN, add an IRQ that will populate the above queue
+    IO::CAN& can = IO::getCAN<IO::Pin::PA_12, IO::Pin::PA_11>();
+    can.addIRQHandler(canInterrupt, reinterpret_cast<void*>(&canOpenQueue));
 
     // Reserved memory for CANopen stack usage
     uint8_t sdoBuffer[CO_SSDO_N * CO_SDO_BUF_BYTE];
@@ -146,11 +137,12 @@ int main() {
     CO_IF_TIMER_DRV timerDriver;
     CO_IF_NVM_DRV nvmDriver;
 
-    IO::CAN::CANStatus result = can.connect();
+    CO_NODE canNode;
 
-    //test that the board is connected to the can network
+    // Test that the board is connected to the can network
+    IO::CAN::CANStatus result = can.connect();
     if (result != IO::CAN::CANStatus::OK) {
-        uart.printf("Failed to connect to CAN network\r\n");
+        log::LOGGER.log(log::Logger::LogLevel::ERROR, "Failed to connect to CAN network");
         return 1;
     }
 
@@ -160,39 +152,19 @@ int main() {
     // Initialize the CANOpen node we are using.
     IO::initializeCANopenNode(&canNode, &tms, &canStackDriver, sdoBuffer, appTmrMem);
 
+    // Print any CANopen errors
+    CO_ERR err = CONodeGetErr(&canNode);
+    if (err != CO_ERR_NONE) {
+        log::LOGGER.log(log::Logger::LogLevel::ERROR, "CANopen Error: %d", err);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Main loop
     ///////////////////////////////////////////////////////////////////////////
 
     while (1) {
-        // Update the thermistor temperatures
-        tms.updateTemps();
-        // Process incoming CAN messages
-        CONodeProcess(&canNode);
-
-        switch (CONmtGetMode(&canNode.Nmt)) {
-        // Auxiliary Mode
-        case CO_PREOP:
-            // Turn the pump and fans off
-            pump.stop();
-            for (TMS::RadiatorFan fan : fans) {
-                fan.setSpeed(0);
-            }
-            break;
-        // Operational Mode
-        case CO_OPERATIONAL:
-            // Update the state of timer based events
-            COTmrService(&canNode.Tmr);
-            // Handle executing timer events that have elapsed
-            COTmrProcess(&canNode.Tmr);
-
-            // Activate the pump and fans -- will be replaced with more advanced cooling logic later
-            tms.process(fans, pump);
-            break;
-        default:
-            log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
-        }
-
+        tms.process();
+        IO::processCANopenNode(&canNode);
         time::wait(250);
     }
 }

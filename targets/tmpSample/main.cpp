@@ -6,7 +6,7 @@
 #include <EVT/io/UART.hpp>
 #include <EVT/io/pin.hpp>
 #include <EVT/manager.hpp>
-#include <TMS/dev/TMP117.hpp>
+#include <dev/TMP117.hpp>
 
 int main() {
     EVT::core::platform::init();

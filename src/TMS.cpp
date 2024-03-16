@@ -1,15 +1,11 @@
-#include <TMS/TMS.hpp>
+#include <TMS.hpp>
 
 namespace TMS {
 
 uint16_t TMS::sensorTemps[NUM_TEMP_SENSORS] = {};
 
-TMS::TMS(TCA9545A& tca9545A) : tca9545A(tca9545A) {}
-
-void TMS::updateTemps() {
-    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Updating Temps");
-    tca9545A.pollDevices();
-}
+TMS::TMS(TCA9545A& tca9545A, HeatPump pump, RadiatorFan fans[2]) : tca9545A(tca9545A), pump(pump),
+                                                                   fans{fans[0], fans[1]} {}
 
 CO_OBJ_T* TMS::getObjectDictionary() {
     return &objectDictionary[0];
@@ -21,9 +17,38 @@ uint8_t TMS::getNodeID() {
     return TMS::NODE_ID;
 }
 
-void TMS::process(RadiatorFan* fans, HeatPump pump) {
+void TMS::process() {
+    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "Updating Temps");
+    tca9545A.pollDevices();
+
+    switch (mode) {
+    // Auxiliary Mode
+    case CO_PREOP:
+        // Turn the pump and fans off
+        pump.stop();
+        for (RadiatorFan fan : fans) {
+            fan.setSpeed(0);
+        }
+
+        break;
+    // Operational Mode
+    case CO_OPERATIONAL:
+        // Set the cooling controls
+        setCooling();
+
+        break;
+    default:
+        log::LOGGER.log(log::Logger::LogLevel::ERROR, "Network Management state is not valid.");
+    }
+}
+
+void TMS::setMode(CO_MODE newMode) {
+    mode = newMode;
+}
+
+void TMS::setCooling() {
     RadiatorFan fan1 = fans[0];
-    //    RadiatorFan fan2 = fans[1];
+    //RadiatorFan fan2 = fans[1];
 
     uint16_t highestTemp = 0;
     for (uint8_t i = 1; i < 4; i++) {
