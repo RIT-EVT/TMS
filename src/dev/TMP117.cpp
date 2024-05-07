@@ -12,9 +12,13 @@ uint16_t TMP117::readTemp() {
     uint8_t tempBytes[2];
     uint16_t temp;
 
-    i2c->readReg(i2cSlaveAddress, &tempReg, 1, tempBytes, 2);
+    IO::I2C::I2CStatus status = i2c->readReg(i2cSlaveAddress, &tempReg, 1, tempBytes, 2);
 
-    input = ((uint16_t) tempBytes[0]) << 8 | tempBytes[1];
+    if (status == IO::I2C::I2CStatus::OK) {
+        input = ((uint16_t) tempBytes[0]) << 8 | tempBytes[1];
+    } else {
+        input = 0;
+    }
 
     /**
      * degrees centi celsius
