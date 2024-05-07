@@ -34,8 +34,6 @@ namespace log = EVT::core::log;
  * @param priv[in] The private data (FixedQueue<CANOPEN_QUEUE_SIZE, CANMessage>)
  */
 void canInterrupt(IO::CANMessage& message, void* priv) {
-    log::LOGGER.log(log::Logger::LogLevel::DEBUG, "CAN Message received.");
-
     auto* queue = (EVT::core::types::FixedQueue<CANOPEN_QUEUE_SIZE, IO::CANMessage>*) priv;
     if (queue != nullptr) {
         queue->append(message);
@@ -87,11 +85,11 @@ int main() {
     devices[0] = TMS::TMP117I2CDevice(&tmpDevices[0], &TMS::TMS::sensorTemps[0]);
     bus2[0] = &devices[0];
 
-    tmpDevices[1] = TMS::TMP117(&i2c, 0x4A);
+    tmpDevices[1] = TMS::TMP117(&i2c, 0x48);
     devices[1] = TMS::TMP117I2CDevice(&tmpDevices[1], &TMS::TMS::sensorTemps[2]);
     bus1[0] = &devices[1];
 
-    tmpDevices[2] = TMS::TMP117(&i2c, 0x4B);
+    tmpDevices[2] = TMS::TMP117(&i2c, 0x49);
     devices[2] = TMS::TMP117I2CDevice(&tmpDevices[2], &TMS::TMS::sensorTemps[3]);
     bus1[1] = &devices[2];
 
@@ -101,10 +99,13 @@ int main() {
 
     TMS::HeatPump pump(IO::getPWM<IO::Pin::PA_6>());
 
-    TMS::RadiatorFan fans[1] = {
+    TMS::RadiatorFan fans[2] = {
         TMS::RadiatorFan(IO::getPWM<IO::Pin::PA_0>(),
                          IO::getGPIO<IO::Pin::PA_1>(IO::GPIO::Direction::OUTPUT),
                          IO::getGPIO<IO::Pin::PB_10>(IO::GPIO::Direction::OUTPUT)),
+        TMS::RadiatorFan(IO::getPWM<IO::Pin::PC_2>(),
+                         IO::getGPIO<IO::Pin::PC_0>(IO::GPIO::Direction::OUTPUT),
+                         IO::getGPIO<IO::Pin::PC_1>(IO::GPIO::Direction::OUTPUT)),
     };
 
     TMS::TMS tms(tca, pump, fans);

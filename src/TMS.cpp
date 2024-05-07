@@ -67,7 +67,7 @@ void TMS::applyThermalModel() {
     // Command devices to execute the control policy
     pump.setSpeed(pumpSpeed);
     fans[0].setSpeed(fan1Speed);
-    //fans[1].setSpeed(fan2Speed);
+    fans[1].setSpeed(fan2Speed);
 }
 
 }// namespace TMS
