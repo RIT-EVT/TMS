@@ -6,10 +6,11 @@
 #include <EVT/io/CANOpenMacros.hpp>
 #include <EVT/io/GPIO.hpp>
 #include <EVT/utils/log.hpp>
-#include <TMS/dev/HeatPump.hpp>
-#include <TMS/dev/RadiatorFan.hpp>
-#include <TMS/dev/TCA9545A.hpp>
 #include <co_core.h>
+#include <dev/HeatPump.hpp>
+#include <dev/RadiatorFan.hpp>
+#include <dev/TCA9545A.hpp>
+#include <models/DEV1ThermalModel.h>
 
 #define NUM_TEMP_SENSORS 4
 
@@ -26,7 +27,7 @@ public:
      *
      * @param tca9545A I2C MUX instance to use for getting temp sensor data
      */
-    explicit TMS(TCA9545A& tca9545A);
+    TMS(TCA9545A& tca9545A, HeatPump pump, RadiatorFan fans[2]);
 
     /**
      * Array to store the thermistor values
@@ -35,16 +36,6 @@ public:
      */
     static uint16_t sensorTemps[NUM_TEMP_SENSORS];
 
-    /**
-     * The node ID used to identify the device on the CAN network.
-     */
-    static constexpr uint8_t NODE_ID = 0x08;
-
-    /**
-     * Update the saved thermistor temperature values with the latest data from the thermistors
-     */
-    void updateTemps();
-
     CO_OBJ_T* getObjectDictionary() override;
 
     uint8_t getNumElements() override;
@@ -52,38 +43,48 @@ public:
     uint8_t getNodeID() override;
 
     /**
-     * Update fan and pump speeds
-     * TODO: Modify to meet EVT standards
-     *
-     * @param fans Array of radiator fan instances
-     * @param pump Heat pump
+     * Update temperatures and apply cooling loop controls
      */
-    void process(RadiatorFan* fans, HeatPump pump);
+    void process();
+
+    /**
+     * Set current NMT mode
+     *
+     * @param newMode New NMT mode
+     */
+    void setMode(CO_MODE newMode);
 
 private:
-    /**
-     * TCA9545A instance
-     */
+    /** The node ID used to identify the device on the CAN network */
+    static constexpr uint8_t NODE_ID = 0x08;
+    /** Current NMT Mode */
+    CO_MODE mode = CO_PREOP;
+
+    /** TCA9545A instance */
     TCA9545A& tca9545A;
+    /** Heat pump instance */
+    HeatPump pump;
+    /** Radiator fan instances */
+    RadiatorFan fans[2];
 
-    /**
-     * Current heat pump speed
-     */
+    /** Thermal model instance */
+    DEV1ThermalModel thermalModel;
+
+    /** Current heat pump speed */
     uint8_t pumpSpeed = 0;
-
-    /**
-     * Fan 1 speed
-     */
+    /** Fan 1 speed */
     uint8_t fan1Speed = 0;
-
-    /**
-     * Fan 2 speed
-     */
+    /** Fan 2 speed */
     uint8_t fan2Speed = 0;
 
     /**
+     * Update fan and pump speeds
+     */
+    void applyThermalModel();
+
+    /**
      * Have to know the size of the object dictionary for initialization
-     * process.
+     * process
      */
     static constexpr uint16_t OBJECT_DICTIONARY_SIZE = 41;
 
@@ -93,8 +94,8 @@ private:
         IDENTITY_OBJECT_1018,
         SDO_CONFIGURATION_1200,// Mandatory Keys
 
-        TRANSMIT_PDO_SETTINGS_OBJECT_18XX(0, 0, NODE_ID, TRANSMIT_PDO_TRIGGER_TIMER),
-        TRANSMIT_PDO_SETTINGS_OBJECT_18XX(1, 1, NODE_ID, TRANSMIT_PDO_TRIGGER_TIMER),
+        TRANSMIT_PDO_SETTINGS_OBJECT_18XX(0, TRANSMIT_PDO_TRIGGER_TIMER, TRANSMIT_PDO_INHIBIT_TIME_DISABLE, 2000),
+        TRANSMIT_PDO_SETTINGS_OBJECT_18XX(1, TRANSMIT_PDO_TRIGGER_TIMER, TRANSMIT_PDO_INHIBIT_TIME_DISABLE, 2000),
 
         TRANSMIT_PDO_MAPPING_START_KEY_1AXX(0, 4),
         TRANSMIT_PDO_MAPPING_ENTRY_1AXX(0, 1, PDO_MAPPING_UNSIGNED16),
@@ -103,20 +104,20 @@ private:
         TRANSMIT_PDO_MAPPING_ENTRY_1AXX(0, 4, PDO_MAPPING_UNSIGNED16),
 
         TRANSMIT_PDO_MAPPING_START_KEY_1AXX(1, 3),
-        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(1, 1, PDO_MAPPING_UNSIGNED16),
-        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(1, 2, PDO_MAPPING_UNSIGNED16),
-        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(1, 3, PDO_MAPPING_UNSIGNED16),
+        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(1, 1, PDO_MAPPING_UNSIGNED8),
+        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(1, 2, PDO_MAPPING_UNSIGNED8),
+        TRANSMIT_PDO_MAPPING_ENTRY_1AXX(1, 3, PDO_MAPPING_UNSIGNED8),
 
         DATA_LINK_START_KEY_21XX(0, 4),
-        DATA_LINK_21XX(0, 0, CO_TUNSIGNED16, &sensorTemps[0]),
-        DATA_LINK_21XX(0, 1, CO_TUNSIGNED16, &sensorTemps[1]),
-        DATA_LINK_21XX(0, 2, CO_TUNSIGNED16, &sensorTemps[2]),
-        DATA_LINK_21XX(0, 3, CO_TUNSIGNED16, &sensorTemps[3]),
+        DATA_LINK_21XX(0, 1, CO_TUNSIGNED16, &sensorTemps[0]),
+        DATA_LINK_21XX(0, 2, CO_TUNSIGNED16, &sensorTemps[1]),
+        DATA_LINK_21XX(0, 3, CO_TUNSIGNED16, &sensorTemps[2]),
+        DATA_LINK_21XX(0, 4, CO_TUNSIGNED16, &sensorTemps[3]),
 
         DATA_LINK_START_KEY_21XX(1, 3),
-        DATA_LINK_21XX(1, 0, CO_TUNSIGNED16, &pumpSpeed),
-        DATA_LINK_21XX(1, 1, CO_TUNSIGNED16, &fan1Speed),
-        DATA_LINK_21XX(1, 2, CO_TUNSIGNED16, &fan2Speed),
+        DATA_LINK_21XX(1, 1, CO_TUNSIGNED8, &pumpSpeed),
+        DATA_LINK_21XX(1, 2, CO_TUNSIGNED8, &fan1Speed),
+        DATA_LINK_21XX(1, 3, CO_TUNSIGNED8, &fan2Speed),
 
         // End of dictionary marker
         CO_OBJ_DICT_ENDMARK,

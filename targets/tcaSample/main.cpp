@@ -6,9 +6,9 @@
 #include <EVT/io/UART.hpp>
 #include <EVT/io/pin.hpp>
 #include <EVT/manager.hpp>
-#include <TMS/dev/TCA9545A.hpp>
-#include <TMS/dev/TMP117.hpp>
-#include <TMS/dev/TMP117I2CDevice.hpp>
+#include <dev/TCA9545A.hpp>
+#include <dev/TMP117.hpp>
+#include <dev/TMP117I2CDevice.hpp>
 
 namespace time = EVT::core::time;
 

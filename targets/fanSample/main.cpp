@@ -7,7 +7,7 @@
 #include <EVT/manager.hpp>
 #include <EVT/utils/time.hpp>
 
-#include <TMS/dev/RadiatorFan.hpp>
+#include <dev/RadiatorFan.hpp>
 
 namespace IO = EVT::core::IO;
 namespace time = EVT::core::time;
