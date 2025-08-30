@@ -86,11 +86,11 @@ int main() {
     bus2[0] = &devices[0];
 
     tmpDevices[1] = TMS::TMP117(&i2c, 0x48);
-    devices[1] = TMS::TMP117I2CDevice(&tmpDevices[1], &TMS::TMS::sensorTemps[2]);
+    devices[1] = TMS::TMP117I2CDevice(&tmpDevices[1], &TMS::TMS::sensorTemps[1]);
     bus1[0] = &devices[1];
 
     tmpDevices[2] = TMS::TMP117(&i2c, 0x49);
-    devices[2] = TMS::TMP117I2CDevice(&tmpDevices[2], &TMS::TMS::sensorTemps[3]);
+    devices[2] = TMS::TMP117I2CDevice(&tmpDevices[2], &TMS::TMS::sensorTemps[2]);
     bus1[1] = &devices[2];
 
     uint8_t numDevices[4] = {0, 2, 1, 0};
@@ -153,6 +153,9 @@ int main() {
     // Initialize the CANOpen node we are using.
     IO::initializeCANopenNode(&canNode, &tms, &canStackDriver, sdoBuffer, appTmrMem);
 
+    // Use when debugging without batteries to place the can mode into operational which will run the simulink model
+    // CONmtSetMode(&canNode.Nmt, CO_OPERATIONAL);
+
     // Print any CANopen errors
     CO_ERR err = CONodeGetErr(&canNode);
     if (err != CO_ERR_NONE) {
@@ -165,6 +168,11 @@ int main() {
 
     while (1) {
         tms.process();
+
+        log::LOGGER.log(log::Logger::LogLevel::INFO, "TMPB %d", TMS::TMS::sensorTemps[0]);
+        log::LOGGER.log(log::Logger::LogLevel::INFO, "TMP1 %d", TMS::TMS::sensorTemps[1]);
+        log::LOGGER.log(log::Logger::LogLevel::INFO, "TMP2 %d", TMS::TMS::sensorTemps[2]);
+
         IO::processCANopenNode(&canNode);
         time::wait(250);
     }
