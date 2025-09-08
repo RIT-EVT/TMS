@@ -68,6 +68,10 @@ void TMS::applyThermalModel() {
     pump.setSpeed(pumpSpeed);
     fans[0].setSpeed(fan1Speed);
     fans[1].setSpeed(fan2Speed);
+
+    log::LOGGER.log(log::Logger::LogLevel::INFO, "Pump %d", pumpSpeed);
+    log::LOGGER.log(log::Logger::LogLevel::INFO, "Fan1 %d", fan1Speed);
+    log::LOGGER.log(log::Logger::LogLevel::INFO, "Fan2 %d", fan2Speed);
 }
 
 }// namespace TMS
